@@ -9,9 +9,9 @@ const router = createRouter({
       component: () => import('../views/Home.vue')
     },
     {
-      path: '/other',
-      name: 'other',
-      component: () => import('../views/Other.vue')
+      path: '/spotify',
+      name: 'spotify',
+      component: () => import('../views/Spotify.vue')
     }
   ]
 })
