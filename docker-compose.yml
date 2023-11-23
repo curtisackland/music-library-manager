@@ -1,0 +1,33 @@
+services:
+  consumer:
+    build:
+      context: ./service-consumer
+      dockerfile: dockerfile
+    container_name: service-consumer
+    ports:
+      - "80:3000"
+
+  registry:
+    build:
+      context: ./service-registry
+      dockerfile: dockerfile
+    container_name: service-registry
+    ports:
+      - "3000:3000"
+
+  spotify:
+    build:
+      context: ./service-providers/spotify-music-manager
+      dockerfile: dockerfile
+    container_name: service-provider-spotify
+    ports:
+      - "3001:3001"
+
+  apple:
+    build:
+      context: ./service-providers/apple-music-manager
+      dockerfile: dockerfile
+    container_name: service-provider-apple
+    ports:
+      - "3002:3002"
+
