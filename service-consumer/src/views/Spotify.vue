@@ -12,7 +12,7 @@
       <tbody>
       <tr v-for="row in playlists.items">
         <td><span>{{row.name}}</span></td>
-        <td><button @click="downloadJson(row.id)">Download JSON</button></td>
+        <td><button class="btn btn-primary" @click="downloadJson(row.id)">Download JSON</button></td>
       </tr>
       </tbody>
     </table>
