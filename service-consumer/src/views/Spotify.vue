@@ -28,12 +28,12 @@
     name: "Spotify",
     methods: {
       async fetchPlaylists() {
-        this.playlists = (await axios.get(this.getSpotifyProviderURL() + "/playlists?username=verycreepy")).data;
+        this.playlists = (await axios.get(this.getSpotifyProviderURL() + "/playlists?username=" + encodeURIComponent(await this.getCurrentUsername()))).data;
       },
       async downloadJson(id) {
         try {
           // Make an Axios request to fetch JSON data
-          const response = await axios.get(this.getSpotifyProviderURL() + '/playlist?playlist_id=' + id); // Replace with your API endpoint
+          const response = await axios.get(this.getSpotifyProviderURL() + '/playlist?playlist_id=' + id);
 
           // Get the JSON data from the response
           const jsonData = response.data;
@@ -64,12 +64,12 @@
         }
       },
       async spotifyAccountLogin() {
-        const my_client_id = (await axios.get(this.getSpotifyProviderURL() + '/client_id')).data; // TODO: Replace with environment variable
+        const my_client_id = (await axios.get(this.getSpotifyProviderURL() + '/client_id')).data;
         console.log(my_client_id);
         const queryParams = {
           response_type: 'code',
           client_id: my_client_id,
-          scope: "user-read-private playlist-modify-private",
+          scope: "user-read-private playlist-modify-public",
           redirect_uri: this.spotifyRedirectUri(),
           state: "state",
         }
@@ -127,10 +127,10 @@
         const newPlaylistBody = {
           name: "Newly created playlist",
           description: "New playlist description",
-          public: "false",
+          public: "true",
         }
 
-        const newPlaylist = (await axios.post("https://api.spotify.com/v1/users/verycreepy/playlists", newPlaylistBody, {headers: headers}));
+        const newPlaylist = (await axios.post("https://api.spotify.com/v1/users/" + encodeURIComponent(await this.getCurrentUsername()) + "/playlists", newPlaylistBody, {headers: headers}));
 
         // Add some songs
         const addTracksBody = {
@@ -139,6 +139,14 @@
         }
 
         await axios.post("https://api.spotify.com/v1/playlists/" + newPlaylist.data.id + "/tracks", addTracksBody, {headers: headers});
+      },
+      async getCurrentUsername() {
+        const headers = {
+          "Authorization": "Bearer " + await this.getUserAccessToken()
+        }
+
+        const ret = await axios.get("https://api.spotify.com/v1/me", {headers:headers});
+        return ret.data.id
       },
       spotifyRedirectUri() {
         return "http://localhost:5173/spotify"; // TODO: Update to environment variable
