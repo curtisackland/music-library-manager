@@ -1,6 +1,7 @@
 import json
 import requests
 import datetime
+import base64
 
 SECRETS_FILE = "secrets/keys.json"
 BEARER_CACHE_FILE = "secrets/bearer.json"
@@ -60,7 +61,23 @@ class SpotifyAPI:
             self._bearerObject = loadBearerToken()
 
         return self._bearerObject["data"]["access_token"]
-            
+
+    def _getBasicAuth(self) -> str:
+        return base64.b64encode(bytes((self._apiConfig["app"]["client_id"] + ":" + self._apiConfig["app"]["client_secret"]), "utf-8")).decode("utf-8")
+
+    def getUserAuthenticationToken(self, code:str, redirect_uri:str) -> requests.Response:
+
+        headers = {
+            "Authorization":f"Basic {self._getBasicAuth()}",
+            "content-type": "application/x-www-form-urlencoded"
+        }
+        data = {
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": redirect_uri # Redirect URI here is just for verification
+        }
+        ret = requests.post("https://accounts.spotify.com/api/token", headers=headers, data=data)
+        return ret
 
     def getPlaylists(self, user_id):
         headers={"Authorization":f"Bearer {self._getBearerToken()}"}
@@ -73,3 +90,6 @@ class SpotifyAPI:
         response = requests.get(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks", headers=headers)
 
         return response.json()
+    
+    def getClientID(self):
+        return self._apiConfig["app"]["client_id"]
