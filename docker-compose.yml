@@ -11,6 +11,7 @@ services:
     build:
       context: ./service-registry
       dockerfile: dockerfile
+    stop_signal: SIGINT
     container_name: service-registry
     ports:
       - "3000:3000"
@@ -19,6 +20,7 @@ services:
     build:
       context: ./service-providers/spotify-music-manager
       dockerfile: dockerfile
+    stop_signal: SIGINT
     container_name: service-provider-spotify
     ports:
       - "3001:3001"
@@ -27,6 +29,7 @@ services:
     build:
       context: ./service-providers/apple-music-manager
       dockerfile: dockerfile
+    stop_signal: SIGINT
     container_name: service-provider-apple
     ports:
       - "3002:3002"
