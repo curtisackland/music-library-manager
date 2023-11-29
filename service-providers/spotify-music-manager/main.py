@@ -14,9 +14,12 @@ api = SpotifyAPI.SpotifyAPI()
 
 TIME_BETWEEN_REQUESTS = 30
 
+SEND_HEARTBEAT = True
+
 
 def sendHeartbeat() -> None:
-    while True:
+    global SEND_HEARTBEAT
+    while SEND_HEARTBEAT:
         data = {
             "url": os.environ.get('URL'),
             "type": "register",
@@ -55,4 +58,13 @@ if __name__ == '__main__':
     t1 = threading.Thread(target=sendHeartbeat)
     t1.start()
     app.run(host='0.0.0.0', port=3001)
-    # TODO: Add deregistration heartbeat here
+
+    # unregisters the service from the registry on stop
+    SEND_HEARTBEAT = False
+    endRequest = {
+        "url": os.environ.get('URL'),
+        "type": "unregister",
+        "name": "Spotify Library Manager"
+    }
+    requests.post(os.environ.get('REGISTRY_URL'), json=endRequest)
+    t1.join()
