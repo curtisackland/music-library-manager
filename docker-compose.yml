@@ -20,8 +20,12 @@ services:
     build:
       context: ./service-providers/spotify-music-manager
       dockerfile: dockerfile
+    depends_on:
+      - registry
     stop_signal: SIGINT
     container_name: service-provider-spotify
+    env_file:
+      - ./service-providers/spotify-music-manager/.env.example
     ports:
       - "3001:3001"
 
@@ -29,8 +33,12 @@ services:
     build:
       context: ./service-providers/apple-music-manager
       dockerfile: dockerfile
+    depends_on:
+      - registry
     stop_signal: SIGINT
     container_name: service-provider-apple
+    env_file:
+      - ./service-providers/apple-music-manager/.env.example
     ports:
       - "3002:3002"
 
