@@ -1,23 +1,45 @@
+import os
+import sys
+import threading
+import requests
+import time
 import flask
 from flask_cors import CORS
 import SpotifyAPI
+
 app = flask.Flask(__name__)
 CORS(app)
-import sys
 
 api = SpotifyAPI.SpotifyAPI()
+
+TIME_BETWEEN_REQUESTS = 30
+
+
+def sendHeartbeat() -> None:
+    while True:
+        data = {
+            "url": os.environ.get('URL'),
+            "type": "register",
+            "name": "Spotify Library Manager"
+        }
+        print(requests.post(os.environ.get('REGISTRY_URL'), json=data))
+        time.sleep(TIME_BETWEEN_REQUESTS)
+
 
 @app.route('/playlists')
 def playlists():
     return api.getPlaylists(flask.request.args.get("username"))
 
+
 @app.route('/playlist')
 def playlist():
     return api.getPlaylist(flask.request.args.get("playlist_id"))
 
+
 @app.route('/client_id')
 def client_id():
     return api.getClientID()
+
 
 @app.route('/get_user_token')
 def get_user_token():
@@ -30,6 +52,7 @@ def get_user_token():
 
 
 if __name__ == '__main__':
+    t1 = threading.Thread(target=sendHeartbeat)
+    t1.start()
     app.run(host='0.0.0.0', port=3001)
-    #TODO: Add deregistration heartbeat here
-
+    # TODO: Add deregistration heartbeat here
