@@ -27,7 +27,7 @@ services:
     stop_signal: SIGINT
     container_name: service-provider-spotify
     env_file:
-      - ./service-providers/spotify-music-manager/.env
+      - ./service-providers/spotify-music-manager/.env.example
     ports:
       - "3001:3001"
 
@@ -39,6 +39,8 @@ services:
       - registry
     stop_signal: SIGINT
     container_name: service-provider-apple
+    env_file:
+      - ./service-providers/apple-music-manager/.env.example
     ports:
       - "3002:3002"
 
