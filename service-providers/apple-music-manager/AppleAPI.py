@@ -62,7 +62,3 @@ class AppleAPI:
         data = result.json()
         return data
 
-
-if __name__ == "__main__":
-    print(getBearerToken())
-    print(AppleAPI().getPlaylists("ApDEvmB/f6KDomFoBIVx0YAnGQfzuvfIrpUCrosJk/H2onP9zlO+MVXJ6+VFKEHPtRE4CtxGOxSqJZ8+E+ULfUZk0nqS1sj7/5QUBpcWLQTWDaHTmEwNXNi2SVEf8opwf4S45AEtVyqGx61m1BfwDvcls9NUv4kfr+fhMjY1crMMOZPkoZPD/hYv3sDGQWv5i0ElDNts4zlqLC66W+ath8Ko6ESkBdHO2s1LE0krtWLZw2HxWA=="))
