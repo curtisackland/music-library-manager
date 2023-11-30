@@ -5,15 +5,15 @@ FROM python:3.8-slim
 WORKDIR /app
 
 # Install Flask
-RUN pip3 install Flask requests flask-cors
+RUN pip3 install Flask requests flask-cors jwt
 
 # Copy the Python file into the container
 COPY *.py /app/
 
 COPY secrets secrets
 
-# Make port 80 available to the world outside this container
-EXPOSE 80
+# Make port 3002 available to the world outside this container
+EXPOSE 3002
 
 # Run the Flask application
 CMD ["python3", "main.py"]
