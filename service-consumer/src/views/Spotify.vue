@@ -1,5 +1,6 @@
 
 <template>
+  {{ $store.getters.getBackendURL }}
   <h1>Spotify Library Manager</h1>
   <div><button v-if="!userAccessTokenExists()" @click="getUserAccessToken()">Log in to spotify</button></div>
   <div><button @click="createPlaylist()" :disabled="!userAccessTokenExists()">Create playlist</button></div>
