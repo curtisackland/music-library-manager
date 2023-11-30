@@ -19,39 +19,54 @@ SEND_HEARTBEAT = True
 
 def sendHeartbeat() -> None:
     global SEND_HEARTBEAT
+    count = TIME_BETWEEN_REQUESTS
     while SEND_HEARTBEAT:
-        data = {
-            "url": os.environ.get('URL'),
-            "type": "register",
-            "name": "Spotify Library Manager"
-        }
-        print(requests.post(os.environ.get('REGISTRY_URL'), json=data))
-        time.sleep(TIME_BETWEEN_REQUESTS)
+        if count >= TIME_BETWEEN_REQUESTS:
+            data = {
+                "url": os.environ.get('URL'),
+                "type": "register",
+                "name": "Spotify Library Manager"
+            }
+            print("Heartbeat: " + str(requests.post(os.environ.get('REGISTRY_URL'), json=data)), flush=True)
+            count = 0
+        count += 1
+        time.sleep(1)
 
 
-@app.route('/playlists')
-def playlists():
-    return api.getPlaylists(flask.request.args.get("username"))
+@app.route('/userPlaylists')
+def userPlaylists():
+    return api.getPlaylists(flask.request.args.get("userToken"))
 
 
-@app.route('/playlist')
+@app.route('/userPlaylist')
 def playlist():
-    return api.getPlaylist(flask.request.args.get("playlist_id"))
+    return api.getPlaylist(flask.request.args.get("userToken"), flask.request.args.get("playlist_id"))
 
 
-@app.route('/client_id')
-def client_id():
+@app.route('/clientId')
+def clientId():
     return api.getClientID()
 
 
-@app.route('/get_user_token')
-def get_user_token():
+@app.route('/getUserToken')
+def getUserToken():
     response = api.getUserAuthenticationToken(flask.request.args.get("code"), flask.request.args.get("redirect_uri"))
     if response.ok:
         return response.json()
     else:
         print("ERROR", file=sys.stdout, flush=True)
         return flask.Response(response.json(), status=response.status_code, mimetype="application/json")
+
+
+@app.route("/createPlaylist", methods=["POST"])
+def createPlaylist():
+    p = flask.request.json
+    api.createPlaylist(p["userToken"],
+                       p["playlistName"],
+                       p["playlistDescription"],
+                       p["public"],
+                       p["tracks"])
+    return flask.Response(status=200)
 
 
 if __name__ == '__main__':

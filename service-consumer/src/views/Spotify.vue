@@ -29,7 +29,7 @@
     name: "Spotify",
     methods: {
       async fetchPlaylists() {
-        this.playlists = (await axios.get(this.getSpotifyProviderURL() + "/playlists?username=" + encodeURIComponent(await this.getCurrentUsername()))).data;
+        this.playlists = (await axios.get(this.getSpotifyProviderURL() + "/userPlaylists", {params: {userToken: await this.getUserAccessToken()}})).data;
       },
       async downloadJson(id) {
         try {
@@ -64,13 +64,13 @@
           console.error('Error fetching JSON data:', error);
         }
       },
-      async spotifyAccountLogin() {
-        const my_client_id = (await axios.get(this.getSpotifyProviderURL() + '/client_id')).data;
+      async spotifyAccountLogin() { // Redirect to the spotify account login
+        const my_client_id = (await axios.get(this.getSpotifyProviderURL() + '/clientId')).data;
         console.log(my_client_id);
         const queryParams = {
           response_type: 'code',
           client_id: my_client_id,
-          scope: "user-read-private playlist-modify-public",
+          scope: "user-read-private playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private",
           redirect_uri: this.spotifyRedirectUri(),
           state: "state",
         }
@@ -82,7 +82,7 @@
         let queryString = queryArray.join("&");
         window.location.href = "https://accounts.spotify.com/authorize?" + queryString;
       },
-      async getUserAuthorizationCode(forceRegenerate) {
+      async getUserAuthorizationCode(forceRegenerate) { // Try to get the user authorization code, if it does not exist, do login
         if (this.spotifyUserAuthorizationCode == null || forceRegenerate) {
           if (this.getUserAuthorizationCodeQueryParam() == null || forceRegenerate) {
             await this.spotifyAccountLogin();
@@ -91,12 +91,12 @@
         }
         return this.spotifyUserAuthorizationCode;
       },
-      async getUserAccessTokenRequest(forceRegenerate){
+      async getUserAccessTokenRequest(forceRegenerate){ // Request to get the user access token from the authorization code
         const config = {
           code: await this.getUserAuthorizationCode(forceRegenerate),
           redirect_uri: this.spotifyRedirectUri(),
         }
-        let token = (await axios.get(this.getSpotifyProviderURL() + "/get_user_token", {params: config})).data
+        let token = (await axios.get(this.getSpotifyProviderURL() + "/getUserToken", {params: config})).data
         sessionStorage.setItem("spotifyUserAccessTokenFullData", JSON.stringify(
           {
             token: token,
@@ -104,7 +104,7 @@
           }
         ));
       },
-      async getUserAccessToken() {
+      async getUserAccessToken() { // Get the user access token
         let tokenObject = this.getUserAccessTokenFromSession();
 
         if (tokenObject == null) { // Generate new token
@@ -119,35 +119,15 @@
 
         return this.getUserAccessTokenFromSession().token.access_token;
       },
-      async createPlaylist() {
-        const headers = {
-          "Authorization": "Bearer " + await this.getUserAccessToken()
-        }
-
-        // Create new playlist
-        const newPlaylistBody = {
-          name: "Newly created playlist",
-          description: "New playlist description",
+      async createPlaylist() { // Example of how to create a new playlist using the provider
+        const createPlaylistBody = {
+          userToken: await this.getUserAccessToken(),
+          playlistName: "Create Test Playlist",
+          playlistDescription: "Test playlist description",
           public: "true",
+          tracks: ["spotify:track:5W8YXBz9MTIDyrpYaCg2Ky", "spotify:track:5xTtaWoae3wi06K5WfVUUH"],
         }
-
-        const newPlaylist = (await axios.post("https://api.spotify.com/v1/users/" + encodeURIComponent(await this.getCurrentUsername()) + "/playlists", newPlaylistBody, {headers: headers}));
-
-        // Add some songs
-        const addTracksBody = {
-          uris:["spotify:track:5W8YXBz9MTIDyrpYaCg2Ky", "spotify:track:5xTtaWoae3wi06K5WfVUUH"],
-          position:0
-        }
-
-        await axios.post("https://api.spotify.com/v1/playlists/" + newPlaylist.data.id + "/tracks", addTracksBody, {headers: headers});
-      },
-      async getCurrentUsername() {
-        const headers = {
-          "Authorization": "Bearer " + await this.getUserAccessToken()
-        }
-
-        const ret = await axios.get("https://api.spotify.com/v1/me", {headers:headers});
-        return ret.data.id
+        await axios.post(this.getSpotifyProviderURL() + "/createPlaylist", createPlaylistBody)
       },
       spotifyRedirectUri() {
         return "http://localhost:5173/spotify"; // TODO: Update to environment variable
@@ -160,10 +140,10 @@
       },
       getUserAccessTokenFromSession() {
         let data = sessionStorage.getItem("spotifyUserAccessTokenFullData");
-        if (data != undefined) {
+        if (data != null) {
           return JSON.parse(sessionStorage.getItem("spotifyUserAccessTokenFullData"));
         } 
-        return undefined;
+        return null;
         
       },
       userAccessTokenExists() {
@@ -176,10 +156,12 @@
         spotifyUserAuthorizationCode: null,
       }
     },
-    mounted() {
-      if (this.getUserAuthorizationCodeQueryParam() && this.getUserAccessTokenFromSession() == null) {
-        this.getUserAccessToken(); // On page load, if there is a authorization code, but no token try to generate an access token
+    async mounted() {
+      await this.getUserAccessToken(); // Force login on load
+      if (this.getUserAuthorizationCodeQueryParam()) {
+        window.location.href = this.spotifyRedirectUri();
       }
+     
       this.fetchPlaylists();
     }
   }

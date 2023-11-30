@@ -51,6 +51,10 @@ def loadBearerToken():
 
     return bearerJSON
 
+def createAuth(bearer):
+    return {"Authorization":"Bearer " + bearer}
+
+
 class SpotifyAPI:
     def __init__(self) -> None:
         self._apiConfig = getAPIConfig(SECRETS_FILE)
@@ -64,6 +68,26 @@ class SpotifyAPI:
 
     def _getBasicAuth(self) -> str:
         return base64.b64encode(bytes((self._apiConfig["app"]["client_id"] + ":" + self._apiConfig["app"]["client_secret"]), "utf-8")).decode("utf-8")
+
+    def getUserName(self, userToken:str) -> str:
+        ret = requests.get("https://api.spotify.com/v1/me", headers=createAuth(userToken))
+        return ret.json()["id"]
+    
+    def createPlaylist(self, userToken:str, playlistName:str, playlistDescription:str, public:str, tracks:list) -> str:
+        newPlaylistBody = {
+          "name": playlistName,
+          "description": playlistDescription,
+          "public": public,
+        }
+
+        newPlaylist = requests.post(f"https://api.spotify.com/v1/users/{requests.utils.quote(self.getUserName(userToken))}/playlists", json=newPlaylistBody, headers=createAuth(userToken))
+
+        addTracksBody = {
+          "uris":tracks,
+          "position":0
+        }
+        newPlaylistId = newPlaylist.json()["id"]
+        requests.post(f"https://api.spotify.com/v1/playlists/{requests.utils.quote(newPlaylistId)}/tracks", json=addTracksBody, headers=createAuth(userToken))
 
     def getUserAuthenticationToken(self, code:str, redirect_uri:str) -> requests.Response:
 
@@ -79,16 +103,12 @@ class SpotifyAPI:
         ret = requests.post("https://accounts.spotify.com/api/token", headers=headers, data=data)
         return ret
 
-    def getPlaylists(self, user_id):
-        headers={"Authorization":f"Bearer {self._getBearerToken()}"}
-        response = requests.get(f"https://api.spotify.com/v1/users/{user_id}/playlists", headers=headers)
-
+    def getPlaylists(self, userToken:str):
+        response = requests.get(f"https://api.spotify.com/v1/users/{requests.utils.quote(self.getUserName(userToken))}/playlists", headers=createAuth(userToken))
         return response.json()
 
-    def getPlaylist(self, playlist_id):
-        headers={"Authorization":f"Bearer {self._getBearerToken()}"}
-        response = requests.get(f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks", headers=headers)
-
+    def getPlaylist(self, userToken:str, playlistId:str):
+        response = requests.get(f"https://api.spotify.com/v1/playlists/{playlistId}/tracks", headers=createAuth(userToken))
         return response.json()
     
     def getClientID(self):
