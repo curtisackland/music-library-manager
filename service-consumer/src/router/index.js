@@ -12,6 +12,11 @@ const router = createRouter({
       path: '/spotify',
       name: 'spotify',
       component: () => import('../views/Spotify.vue')
+    },
+    {
+      path: '/apple',
+      name: 'apple',
+      component: () => import('../views/Apple.vue')
     }
   ]
 })
