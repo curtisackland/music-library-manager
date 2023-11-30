@@ -261,6 +261,8 @@
           this.sortErrors = "Enter a new playlist name";
         } else if (this.sortLengthOfPlaylist < 0 || this.sortLengthOfPlaylist > 100) {
           this.sortErrors = "Invalid playlist length";
+        } else if (this.sortPriority.length === 0) {
+          this.sortErrors = "Need to pick what sorts to apply";
         } else {
           const playlistIds = [];
           for(let i = 0; i < this.sortSelectedPlaylists.length; i++) {
@@ -275,7 +277,8 @@
             artistNameOrder: this.sortArtistNameOrder,
             songLengthOrder: this.sortSongLengthOrder,
             songReleaseDateOrder: this.sortSongReleaseDateOrder,
-            lengthOfPlaylist: this.sortLengthOfPlaylist
+            lengthOfPlaylist: this.sortLengthOfPlaylist,
+            sortPriority: this.sortPriority
           });
 
           submit.then(async (result) => {
@@ -298,7 +301,7 @@
         try {
           // TODO get common format from back-end
           // Make an Axios request to fetch JSON data
-          const response = await axios.get(this.getSpotifyProviderURL() + '/export?playlist_id=' + id);
+          const response = await axios.get(this.getSpotifyProviderURL() + '/export', {params: {userToken: await this.getUserAccessToken(), playlistId: id}});
 
           // Get the JSON data from the response
           const jsonData = response.data;
@@ -335,7 +338,7 @@
 
         fileText.then(async (result) => {
           console.log(JSON.parse(result));
-          // TODO await axios.post(this.getSpotifyProviderURL() + '/import', JSON.parse(result));
+          await axios.post(this.getSpotifyProviderURL() + '/import', JSON.parse(result));
         }).catch((error) => {
           console.error(error);
         });
