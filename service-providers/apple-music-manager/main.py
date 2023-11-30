@@ -1,5 +1,4 @@
 import os
-import sys
 import threading
 import requests
 import time
@@ -20,14 +19,18 @@ SEND_HEARTBEAT = True
 
 def sendHeartbeat() -> None:
     global SEND_HEARTBEAT
+    count = TIME_BETWEEN_REQUESTS
     while SEND_HEARTBEAT:
-        data = {
-            "url": os.environ.get('URL'),
-            "type": "register",
-            "name": "Apple Library Manager"
-        }
-        print(requests.post(os.environ.get('REGISTRY_URL'), json=data))
-        time.sleep(TIME_BETWEEN_REQUESTS)
+        if count >= TIME_BETWEEN_REQUESTS:
+            data = {
+                "url": os.environ.get('URL'),
+                "type": "register",
+                "name": "Apple Library Manager"
+            }
+            print("Heartbeat: " + str(requests.post(os.environ.get('REGISTRY_URL'), json=data)), flush=True)
+            count = 0
+        count += 1
+        time.sleep(1)
 
 
 @app.route("/getDeveloperToken")

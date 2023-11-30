@@ -36,6 +36,8 @@ export default {
       },
     });
 
+    await MusicKit.getInstance().authorize(); // Force login to happen immediately
+
     this.eq = await this.exampleQuery()
   }
 }
