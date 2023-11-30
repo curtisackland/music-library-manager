@@ -42,6 +42,29 @@ def userPlaylists():
 def playlist():
     return api.getPlaylist(flask.request.args.get("userToken"), flask.request.args.get("playlist_id"))
 
+@app.route('/export')
+def playlist():
+    # TODO return common format on export
+    return api.getPlaylist(flask.request.args.get("playlist_id"))
+
+
+@app.route('/import')
+def playlist():
+    # TODO import common format and create a new playlist based of it
+    return "import endpoint"
+
+
+@app.route('/shuffle', methods=['POST'])
+def shuffle():
+    print(flask.request.json)
+    return flask.request.json
+
+
+@app.route('/sort', methods=['POST'])
+def sort():
+    print(flask.request.json)
+    return flask.request.json
+
 
 @app.route('/clientId')
 def clientId():
