@@ -6,8 +6,12 @@ import time
 import flask
 from flask_cors import CORS
 
+import AppleAPI
+
 app = flask.Flask(__name__)
 CORS(app)
+
+api = AppleAPI.AppleAPI()
 
 TIME_BETWEEN_REQUESTS = 30
 
@@ -26,10 +30,18 @@ def sendHeartbeat() -> None:
         time.sleep(TIME_BETWEEN_REQUESTS)
 
 
+@app.route("/getDeveloperToken")
+def getDeveloperToken():
+    return AppleAPI.getBearerToken()
+
+@app.route("/getPlaylists")
+def getPlaylists():
+    return api.getPlaylists(flask.request.args.get("user_token"))
+
 if __name__ == '__main__':
     t1 = threading.Thread(target=sendHeartbeat)
     t1.start()
-    app.run(host='0.0.0.0', port=3001)
+    app.run(host='0.0.0.0', port=3002)
 
     # unregisters the service from the registry on stop
     SEND_HEARTBEAT = False
