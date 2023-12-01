@@ -247,9 +247,9 @@
           });
 
           submit.then(async (result) => {
-            this.shuffleErrors = "Playlist successfully created";
+            this.shuffleErrors = result.data;
           }).catch((error) => {
-            this.shuffleErrors = "Playlist was not created. Try again.";
+            this.shuffleErrors = error.data;
           });
         }
       },
@@ -282,9 +282,9 @@
           });
 
           submit.then(async (result) => {
-            this.sortErrors = "Playlist successfully created";
+            this.sortErrors = result.data;
           }).catch((error) => {
-            this.sortErrors = "Playlist was not created. Try again.";
+            this.sortErrors = error.data;
           });
         }
       },
@@ -432,7 +432,7 @@
         window.location.href = this.spotifyRedirectUri();
       }
      
-      this.fetchPlaylists();
+      await this.fetchPlaylists();
     }
   }
 </script>
