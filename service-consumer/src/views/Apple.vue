@@ -338,7 +338,7 @@ export default {
       return await MusicKit.getInstance().authorize();
     },
     getAppleProviderURL() {
-      return "http://localhost:3002"; // TODO: Update to environment variable
+      return $store.getters.getBackendURL;
     },
   },
   async mounted() {

@@ -412,7 +412,7 @@
         return "http://localhost:5173/spotify"; // TODO: Update to environment variable
       },
       getSpotifyProviderURL() {
-        return "http://localhost:3001"; // TODO: Update to environment variable
+        return $store.getters.getBackendURL;
       },
       getUserAuthorizationCodeQueryParam() {
         return this.$route.query.code;
