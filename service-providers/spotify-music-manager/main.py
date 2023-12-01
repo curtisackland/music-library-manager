@@ -39,24 +39,27 @@ def userPlaylists():
 
 
 @app.route('/export')
-def playlist():
+def exportPlaylist():
+    # TODO Export into common format
     return api.getPlaylist(flask.request.args.get("userToken"), flask.request.args.get("playlistId"))
 
 
 @app.route('/import', methods=['POST'])
 def importPlaylist():
     # TODO import common format and create a new playlist based of it
-    return "import endpoint"
+    return "Spotify import endpoint"
 
 
 @app.route('/shuffle', methods=['POST'])
 def shuffle():
+    # TODO implement shuffle
     print(flask.request.json)
     return flask.request.json
 
 
 @app.route('/sort', methods=['POST'])
 def sort():
+    # TODO implement sort
     print(flask.request.json)
     return flask.request.json
 
@@ -76,6 +79,7 @@ def getUserToken():
         return flask.Response(response.json(), status=response.status_code, mimetype="application/json")
 
 
+# TODO test route - delete later
 @app.route("/createPlaylist", methods=["POST"])
 def createPlaylist():
     p = flask.request.json

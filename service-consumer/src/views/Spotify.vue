@@ -399,7 +399,7 @@
         return this.getUserAccessTokenFromSession().token.access_token;
       },
       async createPlaylist() { // Example of how to create a new playlist using the provider
-        const createPlaylistBody = {
+        const createPlaylistBody = { // TODO remove later
           userToken: await this.getUserAccessToken(),
           playlistName: "Create Test Playlist",
           playlistDescription: "Test playlist description",
@@ -412,7 +412,7 @@
         return "http://localhost:5173/spotify"; // TODO: Update to environment variable
       },
       getSpotifyProviderURL() {
-        return "http://localhost:3001"; // TODO: Update to environment variable
+        return import.meta.env.VITE_IS_DEV ? "http://localhost:3001" : this.$store.getters.getBackendURL;
       },
       getUserAuthorizationCodeQueryParam() {
         return this.$route.query.code;
