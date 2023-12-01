@@ -1,7 +1,7 @@
 <template>
   <h1>Apple Music takes 2 HOURS to update</h1>
   {{ $store.getters.getBackendURL }}
-  <div v-if="loadPage && playlists">
+  <div v-if="playlists">
 
     <!-- Export playlist table -->
     <table class="mt-3">
@@ -337,13 +337,13 @@ export default {
       return await MusicKit.getInstance().authorize();
     },
     getAppleProviderURL() {
-      return $store.getters.getBackendURL;
+      return import.meta.env.VITE_IS_DEV ? "http://localhost:3002" : this.$store.getters.getBackendURL;
     },
   },
   async mounted() {
     while (MusicKit == undefined); // Wait for apple music to load
     await MusicKit.configure({
-      developerToken: (await axios.get("http://localhost:3002/getDeveloperToken")).data,
+      developerToken: (await axios.get(this.getAppleProviderURL() + "/getDeveloperToken")).data,
       app: {
         name: 'Apple Muisc',
         build: '0.0.1',
@@ -351,7 +351,6 @@ export default {
     });
 
     await MusicKit.getInstance().authorize(); // Force login to happen immediately
-    this.loadPage = true;
 
     this.fetchPlaylists();
   }
