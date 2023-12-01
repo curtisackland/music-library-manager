@@ -33,13 +33,41 @@ def sendHeartbeat() -> None:
         time.sleep(1)
 
 
+@app.route("/userPlaylists")
+def userPlaylists():
+    return api.getPlaylists(flask.request.args.get("userToken"))
+
+
+@app.route('/export')
+def exportPlaylist():
+    # TODO export common format of chosen playlist
+    return "Apple export endpoint"  # api.getPlaylist(flask.request.args.get("userToken"), flask.request.args.get("playlistId"))
+
+
+@app.route('/import', methods=['POST'])
+def importPlaylist():
+    # TODO import common format and create a new playlist based of it
+    return "Apple import endpoint"
+
+
+@app.route('/shuffle', methods=['POST'])
+def shuffle():
+    # TODO implement shuffle
+    print(flask.request.json)
+    return flask.request.json
+
+
+@app.route('/sort', methods=['POST'])
+def sort():
+    # TODO implement sort
+    print(flask.request.json)
+    return flask.request.json
+
+
 @app.route("/getDeveloperToken")
 def getDeveloperToken():
     return AppleAPI.getBearerToken()
 
-@app.route("/getPlaylists")
-def getPlaylists():
-    return api.getPlaylists(flask.request.args.get("user_token"))
 
 if __name__ == '__main__':
     t1 = threading.Thread(target=sendHeartbeat)

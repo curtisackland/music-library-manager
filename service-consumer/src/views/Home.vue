@@ -3,7 +3,6 @@
     <div class="row">
       <div class="col-sm-12 d-flex justify-content-center align-items-center" style="min-height: 100vh;">
         <div>
-          {{ $store.getters.getBackendURL}}
           <h1 class="w-100">Provider Search</h1>
           <input class="w-100" type="text" v-model="input" @input="search" placeholder="Search providers..." />
           <div class="item mt-2" v-for="provider in providers">

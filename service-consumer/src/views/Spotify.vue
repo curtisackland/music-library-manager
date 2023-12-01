@@ -399,7 +399,7 @@
         return this.getUserAccessTokenFromSession().token.access_token;
       },
       async createPlaylist() { // Example of how to create a new playlist using the provider
-        const createPlaylistBody = {
+        const createPlaylistBody = { // TODO remove later
           userToken: await this.getUserAccessToken(),
           playlistName: "Create Test Playlist",
           playlistDescription: "Test playlist description",
