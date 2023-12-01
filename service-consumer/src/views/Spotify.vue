@@ -295,7 +295,6 @@
         for(let i = 0; i < temp.items.length; i++) {
           this.playlists.push({key: temp.items[i].id, value: temp.items[i].name});
         }
-        console.log(this.playlists);
       },
       async downloadJson(id) {
         try {
@@ -337,7 +336,6 @@
         const fileText = file.text();
 
         fileText.then(async (result) => {
-          console.log(JSON.parse(result));
           await axios.post(this.getSpotifyProviderURL() + '/import', JSON.parse(result));
         }).catch((error) => {
           console.error(error);
@@ -345,7 +343,6 @@
       },
       async spotifyAccountLogin() { // Redirect to the spotify account login
         const my_client_id = (await axios.get(this.getSpotifyProviderURL() + '/clientId')).data;
-        console.log(my_client_id);
         const queryParams = {
           response_type: 'code',
           client_id: my_client_id,
