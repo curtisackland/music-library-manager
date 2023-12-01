@@ -409,8 +409,7 @@
         return "http://localhost:5173/spotify"; // TODO: Update to environment variable
       },
       getSpotifyProviderURL() {
-        return "http://localhost:3001";
-        // return import.meta.env.VITE_IS_DEV ? "http://localhost:3001" : this.$store.getters.getBackendURL;
+        return import.meta.env.VITE_IS_DEV ? "http://localhost:3001" : this.$store.getters.getBackendURL;
       },
       getUserAuthorizationCodeQueryParam() {
         return this.$route.query.code;
