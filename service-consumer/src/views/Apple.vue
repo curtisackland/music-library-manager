@@ -238,9 +238,9 @@ export default {
             {params: {userToken: await this.getMusicUserToken()}});
 
         submit.then(async (result) => {
-          this.shuffleErrors = "Playlist successfully created";
+          this.shuffleErrors = result.data;
         }).catch((error) => {
-          this.shuffleErrors = "Playlist was not created. Try again.";
+          this.shuffleErrors = error.data;
         });
       }
     },
@@ -274,9 +274,9 @@ export default {
             {params: {userToken: await this.getMusicUserToken()}});
 
         submit.then(async (result) => {
-          this.sortErrors = "Playlist successfully created";
+          this.sortErrors = result.data;
         }).catch((error) => {
-          this.sortErrors = "Playlist was not created. Try again.";
+          this.sortErrors = error.data;
         });
       }
     },
@@ -352,7 +352,7 @@ export default {
 
     await MusicKit.getInstance().authorize(); // Force login to happen immediately
 
-    this.fetchPlaylists();
+    await this.fetchPlaylists();
   }
 }
 </script>

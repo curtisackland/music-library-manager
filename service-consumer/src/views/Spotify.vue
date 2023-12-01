@@ -247,9 +247,9 @@
           });
 
           submit.then(async (result) => {
-            this.shuffleErrors = "Playlist successfully created";
+            this.shuffleErrors = result.data;
           }).catch((error) => {
-            this.shuffleErrors = "Playlist was not created. Try again.";
+            this.shuffleErrors = error.data;
           });
         }
       },
@@ -282,9 +282,9 @@
           });
 
           submit.then(async (result) => {
-            this.sortErrors = "Playlist successfully created";
+            this.sortErrors = result.data;
           }).catch((error) => {
-            this.sortErrors = "Playlist was not created. Try again.";
+            this.sortErrors = error.data;
           });
         }
       },
@@ -409,7 +409,8 @@
         return "http://localhost:5173/spotify"; // TODO: Update to environment variable
       },
       getSpotifyProviderURL() {
-        return import.meta.env.VITE_IS_DEV ? "http://localhost:3001" : this.$store.getters.getBackendURL;
+        return "http://localhost:3001";
+        // return import.meta.env.VITE_IS_DEV ? "http://localhost:3001" : this.$store.getters.getBackendURL;
       },
       getUserAuthorizationCodeQueryParam() {
         return this.$route.query.code;
@@ -432,7 +433,7 @@
         window.location.href = this.spotifyRedirectUri();
       }
      
-      this.fetchPlaylists();
+      await this.fetchPlaylists();
     }
   }
 </script>
