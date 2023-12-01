@@ -170,7 +170,6 @@ export default {
   data() {
     return {
       loadPage: false,
-      eq:null, // TODO remove this later
       shuffleSelectedPlaylists: [],
       playlists: [],
       shuffleNewPlaylistName: null,
