@@ -1,6 +1,6 @@
 <template>
+  <a href="/">Back to Registry</a>
   <h1>Apple Music takes 2 HOURS to update</h1>
-  {{ $store.getters.getBackendURL }}
   <div v-if="playlists">
 
     <!-- Export playlist table -->
@@ -337,10 +337,11 @@ export default {
       return await MusicKit.getInstance().authorize();
     },
     getAppleProviderURL() {
-      return import.meta.env.VITE_IS_DEV ? "http://localhost:3002" : this.$store.getters.getBackendURL;
+      return import.meta.env.VITE_IS_DEV ? "http://localhost:3002" : sessionStorage.getItem("backendURL");
     },
   },
   async mounted() {
+    console.log(sessionStorage.getItem("backendURL"));
     while (MusicKit == undefined); // Wait for apple music to load
     await MusicKit.configure({
       developerToken: (await axios.get(this.getAppleProviderURL() + "/getDeveloperToken")).data,
