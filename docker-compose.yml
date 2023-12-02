@@ -4,6 +4,10 @@ services:
       context: ./service-consumer
       dockerfile: dockerfile
     container_name: service-consumer
+    environment:
+      - VITE_IS_DEV=TRUE
+      - VITE_CONSUMER_URL=http://localhost
+      - VITE_REGISTRY_URL=http://localhost:3000
     ports:
       - "80:3000"
 
