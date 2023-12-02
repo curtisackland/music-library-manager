@@ -1,6 +1,6 @@
 
 <template>
-  {{ $store.getters.getBackendURL }}
+  <a href="/">Back to Registry</a>
   <h1>Spotify Library Manager</h1>
   <div><button v-if="!userAccessTokenExists()" @click="getUserAccessToken()">Log in to spotify</button></div>
   <div v-if="userAccessTokenExists() && playlists">
@@ -409,7 +409,7 @@
         return "http://localhost:5173/spotify"; // TODO: Update to environment variable
       },
       getSpotifyProviderURL() {
-        return import.meta.env.VITE_IS_DEV ? "http://localhost:3001" : this.$store.getters.getBackendURL;
+        return import.meta.env.VITE_IS_DEV ? "http://localhost:3001" : sessionStorage.getItem("spotifyBackendURL");
       },
       getUserAuthorizationCodeQueryParam() {
         return this.$route.query.code;
@@ -418,20 +418,20 @@
         let data = sessionStorage.getItem("spotifyUserAccessTokenFullData");
         if (data != null) {
           return JSON.parse(sessionStorage.getItem("spotifyUserAccessTokenFullData"));
-        } 
+        }
         return null;
-        
       },
       userAccessTokenExists() {
         return this.getUserAccessTokenFromSession() != null && this.getUserAccessTokenFromSession() != "";
       }
     },
     async mounted() {
+      console.log(sessionStorage.getItem("spotifyBackendURL"));
       await this.getUserAccessToken(); // Force login on load
       if (this.getUserAuthorizationCodeQueryParam()) {
         window.location.href = this.spotifyRedirectUri();
       }
-     
+
       await this.fetchPlaylists();
     }
   }
