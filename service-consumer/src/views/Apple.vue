@@ -337,7 +337,7 @@ export default {
       return await MusicKit.getInstance().authorize();
     },
     getAppleProviderURL() {
-      return import.meta.env.VITE_IS_DEV ? "http://localhost:3002" : sessionStorage.getItem("appleBackendURL");
+      return sessionStorage.getItem("appleBackendURL");
     },
   },
   async mounted() {

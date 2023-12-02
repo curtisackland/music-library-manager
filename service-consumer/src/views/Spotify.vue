@@ -409,7 +409,7 @@
         return import.meta.env.VITE_CONSUMER_URL + "/spotify";
       },
       getSpotifyProviderURL() {
-        return import.meta.env.VITE_IS_DEV ? "http://localhost:3001" : sessionStorage.getItem("spotifyBackendURL");
+        return sessionStorage.getItem("spotifyBackendURL");
       },
       getUserAuthorizationCodeQueryParam() {
         return this.$route.query.code;

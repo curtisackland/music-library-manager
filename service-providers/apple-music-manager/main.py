@@ -1,4 +1,5 @@
 import os
+import re
 import threading
 import requests
 import time
@@ -16,6 +17,11 @@ TIME_BETWEEN_REQUESTS = 30
 
 SEND_HEARTBEAT = True
 
+def getRegistryURL() -> str:
+    if re.search("localhost", os.environ.get('REGISTRY_URL')):
+        return re.sub("localhost", "host.docker.internal", os.environ.get('REGISTRY_URL'))
+    else:
+        return os.environ.get('REGISTRY_URL')
 
 def sendHeartbeat() -> None:
     global SEND_HEARTBEAT
@@ -23,11 +29,11 @@ def sendHeartbeat() -> None:
     while SEND_HEARTBEAT:
         if count >= TIME_BETWEEN_REQUESTS:
             data = {
-                "url": os.environ.get('URL'),
+                "url": os.environ.get('PROVIDER_URL'),
                 "type": "register",
                 "name": "Apple Library Manager"
             }
-            print("Heartbeat: " + str(requests.post(os.environ.get('REGISTRY_URL'), json=data)), flush=True)
+            print("Heartbeat: " + str(requests.post(getRegistryURL() + "/heartbeat", json=data)), flush=True)
             count = 0
         count += 1
         time.sleep(1)
@@ -77,9 +83,9 @@ if __name__ == '__main__':
     # unregisters the service from the registry on stop
     SEND_HEARTBEAT = False
     endRequest = {
-        "url": os.environ.get('URL'),
+        "url": os.environ.get('PROVIDER_URL'),
         "type": "unregister",
         "name": "Apple Library Manager"
     }
-    requests.post(os.environ.get('REGISTRY_URL'), json=endRequest)
+    requests.post(getRegistryURL() + "/heartbeat", json=endRequest)
     t1.join()

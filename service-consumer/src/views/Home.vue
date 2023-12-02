@@ -20,17 +20,17 @@ export default {
   name: "Home",
   methods: {
     async fetchData() {
-      this.providers = (await axios.get("http://localhost:3000/search")).data.names;
+      this.providers = (await axios.get(import.meta.env.VITE_REGISTRY_URL + "/search")).data.names;
     },
     async search() {
-      this.providers = (await axios.get("http://localhost:3000/search?query=" + encodeURIComponent(this.input))).data.names;
+      this.providers = (await axios.get(import.meta.env.VITE_REGISTRY_URL + "/search?query=" + encodeURIComponent(this.input))).data.names;
     },
     async goToProvider(provider) {
       if (provider.includes('Spotify')) {
-        sessionStorage.setItem("spotifyBackendURL", (await axios.get("http://localhost:3000/location?name=" + encodeURIComponent(provider))).data.location);
+        sessionStorage.setItem("spotifyBackendURL", (await axios.get(import.meta.env.VITE_REGISTRY_URL + "/location?name=" + encodeURIComponent(provider))).data.location);
         this.$router.push('/spotify');
       } else if (provider.includes('Apple')) {
-        sessionStorage.setItem("appleBackendURL", (await axios.get("http://localhost:3000/location?name=" + encodeURIComponent(provider))).data.location);
+        sessionStorage.setItem("appleBackendURL", (await axios.get(import.meta.env.VITE_REGISTRY_URL + "/location?name=" + encodeURIComponent(provider))).data.location);
         this.$router.push('/apple');
       }
     },
