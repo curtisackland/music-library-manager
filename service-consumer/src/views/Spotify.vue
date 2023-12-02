@@ -409,7 +409,7 @@
         return "http://localhost:5173/spotify"; // TODO: Update to environment variable
       },
       getSpotifyProviderURL() {
-        return import.meta.env.VITE_IS_DEV ? "http://localhost:3001" : sessionStorage.getItem("backendURL");
+        return import.meta.env.VITE_IS_DEV ? "http://localhost:3001" : sessionStorage.getItem("spotifyBackendURL");
       },
       getUserAuthorizationCodeQueryParam() {
         return this.$route.query.code;
@@ -426,12 +426,12 @@
       }
     },
     async mounted() {
-      console.log(sessionStorage.getItem("backendURL"));
+      console.log(sessionStorage.getItem("spotifyBackendURL"));
       await this.getUserAccessToken(); // Force login on load
       if (this.getUserAuthorizationCodeQueryParam()) {
         window.location.href = this.spotifyRedirectUri();
       }
-      
+
       await this.fetchPlaylists();
     }
   }

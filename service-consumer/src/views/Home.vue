@@ -27,10 +27,10 @@ export default {
     },
     async goToProvider(provider) {
       if (provider.includes('Spotify')) {
-        sessionStorage.setItem("backendURL", (await axios.get("http://localhost:3000/location?name=" + encodeURIComponent(provider))).data.location);
+        sessionStorage.setItem("spotifyBackendURL", (await axios.get("http://localhost:3000/location?name=" + encodeURIComponent(provider))).data.location);
         this.$router.push('/spotify');
       } else if (provider.includes('Apple')) {
-        sessionStorage.setItem("backendURL", (await axios.get("http://localhost:3000/location?name=" + encodeURIComponent(provider))).data.location);
+        sessionStorage.setItem("appleBackendURL", (await axios.get("http://localhost:3000/location?name=" + encodeURIComponent(provider))).data.location);
         this.$router.push('/apple');
       }
     },

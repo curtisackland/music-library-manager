@@ -337,11 +337,11 @@ export default {
       return await MusicKit.getInstance().authorize();
     },
     getAppleProviderURL() {
-      return import.meta.env.VITE_IS_DEV ? "http://localhost:3002" : sessionStorage.getItem("backendURL");
+      return import.meta.env.VITE_IS_DEV ? "http://localhost:3002" : sessionStorage.getItem("appleBackendURL");
     },
   },
   async mounted() {
-    console.log(sessionStorage.getItem("backendURL"));
+    console.log(sessionStorage.getItem("appleBackendURL"));
     while (MusicKit == undefined); // Wait for apple music to load
     await MusicKit.configure({
       developerToken: (await axios.get(this.getAppleProviderURL() + "/getDeveloperToken")).data,
