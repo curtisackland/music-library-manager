@@ -10,8 +10,8 @@ RUN pip3 install Flask requests flask-cors
 # Copy the Python file into the container
 COPY main.py /app/main.py
 
-# Make port 80 available to the world outside this container
-EXPOSE 80
+# Make port 3000 available to the world outside this container
+EXPOSE 3000
 
 # Run the Flask application
 CMD ["python3", "main.py"]
