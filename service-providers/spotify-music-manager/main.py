@@ -261,7 +261,7 @@ def importPlaylist():
     rJson = flask.request.json
 
     api.createPlaylistFromCommonFormat(rJson["userToken"], rJson["playlistTitle"], "", True, rJson["songList"])
-    return "Spotify import endpoint"
+    return "Success"
 
 
 @app.route('/shuffle', methods=['POST'])

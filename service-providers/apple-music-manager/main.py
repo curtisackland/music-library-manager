@@ -252,7 +252,7 @@ def exportPlaylist():
 def importPlaylist():
     rJson = flask.request.json
     api.createPlaylistFromCommonFormat(rJson["userToken"], rJson["playlistTitle"], "", rJson["songList"])
-    return "Apple import endpoint"
+    return "Success"
 
 
 @app.route('/shuffle', methods=['POST'])
