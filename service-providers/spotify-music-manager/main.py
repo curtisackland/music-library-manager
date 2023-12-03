@@ -7,6 +7,7 @@ import flask
 import re
 from flask_cors import CORS
 import SpotifyAPI
+from typing import List
 
 app = flask.Flask(__name__)
 CORS(app)
@@ -16,6 +17,32 @@ api = SpotifyAPI.SpotifyAPI()
 TIME_BETWEEN_REQUESTS = 30
 
 SEND_HEARTBEAT = True
+
+def getCommonFormatSongsFromPlaylists(userToken: str, playlistIDs: List[str]):
+    songs = []
+    for playlistID in playlistIDs:
+        playlist = api.getPlaylist(userToken, playlistID)
+        for item in playlist["items"]:
+            newSong = {}
+
+            newSong["songName"] = item["track"]["name"]
+            newSongArtists = []
+            newSongGenres = []
+            for artist in item["track"]["artists"]:
+                newSongArtists.append(artist["name"])
+                if ("genres" in artist):
+                    newSongGenres.extend(artist["genres"])
+            newSong["artists"] = newSongArtists
+            newSong["genres"] = newSongGenres
+            newSong["album"] = item["track"]["album"]["name"]
+            newSong["songLength"] = item["track"]["duration_ms"]
+            newSong["releaseDate"] = item["track"]["album"]["release_date"]
+            newSong["spotifySongId"] = item["track"]["id"]
+            
+            songs.append(newSong)
+
+    return songs
+
 
 def getRegistryURL() -> str:
     if re.search("localhost", os.environ.get('REGISTRY_URL')):
@@ -50,7 +77,7 @@ def userPlaylists():
 @app.route('/export')
 def exportPlaylist():
     # TODO Export into common format
-    return api.getPlaylist(flask.request.args.get("userToken"), flask.request.args.get("playlistId"))
+    return getCommonFormatSongsFromPlaylists(flask.request.args.get("userToken"), [flask.request.args.get("playlistId")])
 
 
 @app.route('/import', methods=['POST'])
