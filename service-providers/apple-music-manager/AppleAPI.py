@@ -7,12 +7,8 @@ import os
 CONFIG_FILE = "secrets/config.json"
 
 def getConfig():
-    if os.environ.get("iss") != None and os.environ.get("kid") != None:
-        return {"iss":os.environ.get("iss"), "kid":os.environ.get("kid")}
-    else:
-        print("Could not find apple credentials in environment. Looking for file...")
-        with open(CONFIG_FILE, "r") as inConfigFile:
-            return json.load(inConfigFile)
+    with open(CONFIG_FILE, "r") as inConfigFile:
+        return json.load(inConfigFile)
 
 def getPrivateKey() -> str:
     with open(getConfig()["privateKeyFile"], "r") as inKeyFile:
@@ -43,8 +39,8 @@ def generateNewDeveloperBearer():
     return bearerJson
 
 def getBearerToken() -> str:
-    if os.environ.get("bearer") != None:
-        return os.environ.get("bearer")
+    if os.environ.get("APPLE_BEARER") != None:
+        return os.environ.get("APPLE_BEARER")
     else:
         print("Could not find apple bearer in environment. Looking for file...")
         try:
