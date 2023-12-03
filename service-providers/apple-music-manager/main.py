@@ -35,8 +35,8 @@ def sendHeartbeat() -> None:
             }
             try:
                 print("Heartbeat: " + str(requests.post(getRegistryURL() + "/heartbeat", json=data)), flush=True)
-            except Exception:
-                pass
+            except Exception as e:
+                print("Heartbeat Failed: ", e, flush=True)
             count = 0
         count += 1
         time.sleep(1)
