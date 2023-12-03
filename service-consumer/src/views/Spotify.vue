@@ -135,11 +135,6 @@
     </div>
 
     <div>
-      <label class="mt-3 p-2">Length of new playlist: </label>
-      <input type="number" min="0" max="100" v-model="sortLengthOfPlaylist"/>
-    </div>
-
-    <div>
       <label class="mt-3 p-2">Select what order your sorting should be applied: </label>
       <multiselect
           class="w-50"
@@ -202,7 +197,6 @@
         sortArtistNameOrder: "None",
         sortSongLengthOrder: "None",
         sortSongReleaseDateOrder: "None",
-        sortLengthOfPlaylist: 100,
         sortPriority: [],
         sortErrors: null,
       }
@@ -260,8 +254,6 @@
           this.sortErrors = "No playlists selected";
         } else if (this.sortNewPlaylistName == null) {
           this.sortErrors = "Enter a new playlist name";
-        } else if (this.sortLengthOfPlaylist < 0 || this.sortLengthOfPlaylist > 100) {
-          this.sortErrors = "Invalid playlist length";
         } else if (this.sortPriority.length === 0) {
           this.sortErrors = "Need to pick what sorts to apply";
         } else {
@@ -278,7 +270,6 @@
             artistNameOrder: this.sortArtistNameOrder,
             songLengthOrder: this.sortSongLengthOrder,
             songReleaseDateOrder: this.sortSongReleaseDateOrder,
-            lengthOfPlaylist: this.sortLengthOfPlaylist,
             sortPriority: this.sortPriority
           },
               {params: {userToken: await this.getUserAccessToken()}});
