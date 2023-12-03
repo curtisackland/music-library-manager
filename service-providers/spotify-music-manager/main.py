@@ -110,16 +110,16 @@ def shuffle (songFrequency = 0, artistFrequency = 0, genreFrequency = 0, albumFr
         if song['songLength'] >= minTime and song['songLength'] <= maxTime:
 
             songDict.setdefault(song['songName'], [0, []])
-            songDict[song['songName']][SONGLIST].append(song['songId'])
+            songDict[song['songName']][SONGLIST].append(song['spotifySongId'])
 
             artistDict.setdefault(song['artist'], [0, []])
-            artistDict[song['artist']][SONGLIST].append(song['songId'])
+            artistDict[song['artist']][SONGLIST].append(song['spotifySongId'])
 
             genreDict.setdefault(song['genre'], [0, []])
-            genreDict[song['genre']][SONGLIST].append(song['songId'])
+            genreDict[song['genre']][SONGLIST].append(song['spotifySongId'])
 
             albumDict.setdefault(song['album'], [0, []])
-            albumDict[song['album']][SONGLIST].append(song['songId'])
+            albumDict[song['album']][SONGLIST].append(song['spotifySongId'])
 
     if not bool(songDict):
         raise NoSongs
@@ -208,7 +208,7 @@ def shuffle (songFrequency = 0, artistFrequency = 0, genreFrequency = 0, albumFr
 
     finalPlaylist = []
 
-    data_ID_array = [d['songId'] for d in data]
+    data_ID_array = [d['spotifySongId'] for d in data]
 
     # creates final JSON to output
     for ID in finalPlaylist_array:
