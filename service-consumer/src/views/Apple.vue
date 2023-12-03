@@ -308,7 +308,13 @@ export default {
         link.href = URL.createObjectURL(blob);
 
         // Set the download attribute with the desired file name
-        link.download = 'playlist.json';
+        let name = "playlist";
+        for (let i = 0; i < this.playlists.length; i++) {
+          if (this.playlists[i].key === id) {
+            name = this.playlists[i].value
+          }
+        }
+        link.download = name + '.json';
 
         // Append the link to the document
         document.body.appendChild(link);
