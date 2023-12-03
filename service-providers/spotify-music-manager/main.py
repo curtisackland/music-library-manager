@@ -37,7 +37,7 @@ def getCommonFormatSongsFromPlaylists(userToken: str, playlistIDs: List[str]):
             newSong["album"] = item["track"]["album"]["name"]
             newSong["songLength"] = item["track"]["duration_ms"]
             newSong["releaseDate"] = item["track"]["album"]["release_date"]
-            newSong["songId"] = item["track"]["id"]
+            newSong["spotifySongId"] = item["track"]["id"]
             
             songs.append(newSong)
 

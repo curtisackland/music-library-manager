@@ -26,12 +26,12 @@ def getCommonFormatSongsFromPlaylists(userToken: str, playlistIDs: List[str]):
             newSong = {}
 
             newSong["songName"] = track["attributes"]["name"]
-            newSong["artist"] = track["attributes"]["artistName"]
+            newSong["artists"] = [track["attributes"]["artistName"]]
             newSong["genres"] = track["attributes"]["genreNames"]
             newSong["album"] = track["attributes"]["albumName"]
             newSong["songLength"] = track["attributes"]["durationInMillis"]
             newSong["releaseDate"] = track["attributes"]["releaseDate"]
-            newSong["songId"] = track["id"]
+            newSong["appleSongId"] = track["id"]
 
             songs.append(newSong)
 
