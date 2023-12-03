@@ -2,16 +2,21 @@ import requests
 import jwt
 import json
 import datetime
+import os
 
 CONFIG_FILE = "secrets/config.json"
 
 def getConfig():
-    with open(CONFIG_FILE, "r") as inConfigFile:
-        return json.load(inConfigFile)
+    if os.environ.get("iss") != None and os.environ.get("kid") != None:
+        return {"iss":os.environ.get("iss"), "kid":os.environ.get("kid")}
+    else:
+        print("Could not find apple credentials in environment. Looking for file...")
+        with open(CONFIG_FILE, "r") as inConfigFile:
+            return json.load(inConfigFile)
 
 def getPrivateKey() -> str:
-        with open(getConfig()["privateKeyFile"], "r") as inKeyFile:
-            return inKeyFile.read()
+    with open(getConfig()["privateKeyFile"], "r") as inKeyFile:
+        return inKeyFile.read()
 
 def generateNewDeveloperBearer():
     headers = {
@@ -38,12 +43,16 @@ def generateNewDeveloperBearer():
     return bearerJson
 
 def getBearerToken() -> str:
-    try:
-        with open(getConfig()["bearerCache"], "r") as inBearerFile:
-            j = json.load(inBearerFile)
-            return j["bearer"]
-    except FileNotFoundError:
-        return generateNewDeveloperBearer()["bearer"]
+    if os.environ.get("bearer") != None:
+        return os.environ.get("bearer")
+    else:
+        print("Could not find apple bearer in environment. Looking for file...")
+        try:
+            with open(getConfig()["bearerCache"], "r") as inBearerFile:
+                j = json.load(inBearerFile)
+                return j["bearer"]
+        except FileNotFoundError:
+            return generateNewDeveloperBearer()["bearer"]
 
 def createDevAuth(devBearer):
     return {"Authorization":"Bearer " + devBearer}
