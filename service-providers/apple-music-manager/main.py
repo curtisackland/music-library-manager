@@ -105,6 +105,7 @@ def shuffle (songFrequency = 0, artistFrequency = 0, genreFrequency = 0, albumFr
             else:
                 if key == excludedKey:
                     continue
+                    
             attributeDict[key][FREQUENCY_COUNTER] -= 1
     
     if RequestedPlaylistSize == 0:
@@ -116,7 +117,6 @@ def shuffle (songFrequency = 0, artistFrequency = 0, genreFrequency = 0, albumFr
     albumDict = {}
 
     # sorts songs by adding them to dictionaries
-
     appendName_index = 0
     for song in data:
         if song['songLength'] >= (minTime * 1000) and song['songLength'] <= (maxTime * 1000):
@@ -146,7 +146,7 @@ def shuffle (songFrequency = 0, artistFrequency = 0, genreFrequency = 0, albumFr
             albumDict.setdefault(song['album'], [0, []])
             albumDict[song['album']][SONGLIST].append(song["appleSongId"])
 
-
+            
     if not bool(songDict):
         raise NoSongs
 
@@ -290,8 +290,9 @@ def exportPlaylist():
 
 @app.route('/import', methods=['POST'])
 def importPlaylist():
-    # TODO import common format and create a new playlist based of it
-    return "Apple import endpoint"
+    rJson = flask.request.json
+    api.createPlaylistFromCommonFormat(rJson["userToken"], rJson["playlistTitle"], "", rJson["songList"])
+    return "Success"
 
 
 @app.route('/shuffle', methods=['POST'])

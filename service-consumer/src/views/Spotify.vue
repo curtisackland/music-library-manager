@@ -244,7 +244,8 @@
             artistFreq: this.shuffleArtistFreq,
             genreFreq: this.shuffleGenreFreq,
             lengthOfPlaylist: this.shuffleLengthOfPlaylist
-          });
+          },
+              {params: {userToken: await this.getUserAccessToken()}});
 
           submit.then(async (result) => {
             this.shuffleErrors = result.data;
@@ -279,7 +280,8 @@
             songReleaseDateOrder: this.sortSongReleaseDateOrder,
             lengthOfPlaylist: this.sortLengthOfPlaylist,
             sortPriority: this.sortPriority
-          });
+          },
+              {params: {userToken: await this.getUserAccessToken()}});
 
           submit.then(async (result) => {
             this.sortErrors = result.data;
@@ -316,7 +318,13 @@
           link.href = URL.createObjectURL(blob);
 
           // Set the download attribute with the desired file name
-          link.download = 'playlist.json';
+          let name = "playlist";
+          for (let i = 0; i < this.playlists.length; i++) {
+            if (this.playlists[i].key === id) {
+              name = this.playlists[i].value
+            }
+          }
+          link.download = name + '.json';
 
           // Append the link to the document
           document.body.appendChild(link);
@@ -336,7 +344,7 @@
         const fileText = file.text();
 
         fileText.then(async (result) => {
-          await axios.post(this.getSpotifyProviderURL() + '/import', JSON.parse(result));
+          await axios.post(this.getSpotifyProviderURL() + '/import', {userToken:await this.getUserAccessToken(), playlistTitle:file.name, songList:JSON.parse(result)});
         }).catch((error) => {
           console.error(error);
         });
