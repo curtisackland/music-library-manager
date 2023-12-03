@@ -5,6 +5,7 @@ import requests
 import time
 import flask
 from flask_cors import CORS
+from typing import List
 
 import AppleAPI
 
@@ -16,6 +17,25 @@ api = AppleAPI.AppleAPI()
 TIME_BETWEEN_REQUESTS = 30
 
 SEND_HEARTBEAT = True
+
+def getCommonFormatSongsFromPlaylists(userToken: str, playlistIDs: List[str]):
+    songs = []
+    for playlistID in playlistIDs:
+        playlist = api.getPlaylistTracks(userToken, playlistID)
+        for track in playlist["data"]:
+            newSong = {}
+
+            newSong["songName"] = track["attributes"]["name"]
+            newSong["artist"] = track["attributes"]["artistName"]
+            newSong["genres"] = track["attributes"]["genreNames"]
+            newSong["album"] = track["attributes"]["albumName"]
+            newSong["songLength"] = track["attributes"]["durationInMillis"]
+            newSong["releaseDate"] = track["attributes"]["releaseDate"]
+            newSong["songId"] = track["id"]
+
+            songs.append(newSong)
+
+    return songs
 
 def getRegistryURL() -> str:
     if re.search("localhost", os.environ.get('REGISTRY_URL')):
@@ -46,8 +66,7 @@ def userPlaylists():
 
 @app.route('/export')
 def exportPlaylist():
-    # TODO export common format of chosen playlist
-    return "Apple export endpoint"  # api.getPlaylist(flask.request.args.get("userToken"), flask.request.args.get("playlistId"))
+    return getCommonFormatSongsFromPlaylists(flask.request.args.get("userToken"), [flask.request.args.get("playlistId")])
 
 
 @app.route('/import', methods=['POST'])
