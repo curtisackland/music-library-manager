@@ -10,8 +10,6 @@ RUN pip3 install Flask requests flask-cors jwt
 # Copy the Python file into the container
 COPY *.py /app/
 
-COPY secrets secrets
-
 # Make port 3002 available to the world outside this container
 EXPOSE 3002
 

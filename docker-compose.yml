@@ -27,6 +27,8 @@ services:
       - registry
     stop_signal: SIGINT
     container_name: service-provider-spotify
+    env_file:
+      - service-providers/spotify-music-manager/.env
     environment:
       - PROVIDER_URL=http://localhost:3001
       - REGISTRY_URL=http://localhost:3000
@@ -43,6 +45,8 @@ services:
       - registry
     stop_signal: SIGINT
     container_name: service-provider-apple
+    env_file:
+      - service-providers/apple-music-manager/.env
     environment:
       - PROVIDER_URL=http://localhost:3002
       - REGISTRY_URL=http://localhost:3000

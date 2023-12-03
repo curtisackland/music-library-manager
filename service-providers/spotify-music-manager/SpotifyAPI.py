@@ -1,5 +1,6 @@
 import json
 import requests
+import os
 import datetime
 import base64
 
@@ -10,8 +11,11 @@ def interperateSpotifyDateTime(time:str) -> datetime:
     return datetime.datetime.strptime(str(time), "%a, %d %b %Y %H:%M:%S %Z")
 
 def getAPIConfig(keyfile):
-    with open(keyfile, "r") as keyfileptr:
-        return json.load(keyfileptr)
+    if os.environ.get("SPOTIFY_CLIENT_ID") != None and os.environ.get("SPOTIFY_CLIENT_SECRET") != None:
+        return {"app":{"client_id":os.environ.get("SPOTIFY_CLIENT_ID"), "client_secret":os.environ.get("SPOTIFY_CLIENT_SECRET")}}
+    else:
+        raise Exception("Could not find spotify credentials in environment.")
+
 
 def getNewBearerTokenObject(clientID, clientSecret):
     header = {"Content-Type":"application/x-www-form-urlencoded"}
@@ -45,7 +49,8 @@ def loadBearerToken():
     if bearerJSON == None or isExpired:
         cfg = getAPIConfig(SECRETS_FILE)
         bearerJSON = getNewBearerTokenObject(cfg["app"]["client_id"], cfg["app"]["client_secret"])
-
+        if not os.path.exists(os.path.dirname(BEARER_CACHE_FILE)):
+            os.mkdir(os.path.dirname(BEARER_CACHE_FILE))
         with open(BEARER_CACHE_FILE, "w") as bf:
             json.dump(bearerJSON, bf)
 
