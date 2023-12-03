@@ -33,7 +33,10 @@ def sendHeartbeat() -> None:
                 "type": "register",
                 "name": "Apple Library Manager"
             }
-            print("Heartbeat: " + str(requests.post(getRegistryURL() + "/heartbeat", json=data)), flush=True)
+            try:
+                print("Heartbeat: " + str(requests.post(getRegistryURL() + "/heartbeat", json=data)), flush=True)
+            except Exception:
+                pass
             count = 0
         count += 1
         time.sleep(1)
