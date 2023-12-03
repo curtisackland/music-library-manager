@@ -414,7 +414,7 @@ def sort():
 
     songsList = getCommonFormatSongsFromPlaylists(flask.request.args.get("userToken"), flask.request.json.get("playlistIds"))
     playlist = sorting(songsList, flask.request.json.get("sortPriority"))
-    api.createPlaylistFromCommonFormat(flask.request.args.get("userToken"), flask.request.json.get("newPlaylistName"), "", playlist)
+    api.createPlaylistFromCommonFormat(flask.request.args.get("userToken"), flask.request.json.get("newPlaylistName"), "", False, playlist)
 
     print(json.dumps(playlist, indent=2))
 
