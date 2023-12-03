@@ -39,7 +39,7 @@ def getCommonFormatSongsFromPlaylists(userToken: str, playlistIDs: List[str]):
 
     return songs
 
-def shuffle (songFrequency = 0, artistFrequency = 0, genreFrequency = 0, albumFrequency = 0, File="", RequestedPlaylistSize = 0, minTime = 0, maxTime = 0):
+def shuffle (songFrequency = 0, artistFrequency = 0, genreFrequency = 0, albumFrequency = 0, data=[], RequestedPlaylistSize = 0, minTime = 0, maxTime = 0):
 
     FREQUENCY_COUNTER = 0
     SONGLIST = 1
@@ -72,26 +72,44 @@ def shuffle (songFrequency = 0, artistFrequency = 0, genreFrequency = 0, albumFr
         def __init__(self, msg="Deadlock occurred during Shuffle. Try changing frequency values.", *args, **kwargs):
             super().__init__(msg, *args, **kwargs)
 
-    def checkFrequency(attributeDict, attributeKeyList, ID):
-        for key in attributeKeyList:
-            if ID in attributeDict[key][SONGLIST]:
-                if attributeDict[key][FREQUENCY_COUNTER] <= 0:
-                    return key
-                else:
-                    return False
+    def checkFrequency(attributeDict, attributeKeyList, ID, attribute):
+        if attribute == "genre" or attribute == "artist":
+            if attribute == "genre":
+                if "EMPTY" in attributeDict:
+                    if ID in attributeDict["EMPTY"][SONGLIST]:
+                        return True
+            keys = []
+            for key in attributeKeyList:
+                if ID in attributeDict[key][SONGLIST]:
+                    if attributeDict[key][FREQUENCY_COUNTER] <= 0:
+                        keys.append(key)
+                    else:
+                        return False
+            
+            return keys
+
+        else:
+            for key in attributeKeyList:
+                if ID in attributeDict[key][SONGLIST]:
+                    if attributeDict[key][FREQUENCY_COUNTER] <= 0:
+                        return key
+                    else:
+                        return False
 
 
     def reduceFrequencyCounter(attributeDict, attributeKeyList, excludedKey):
         for key in attributeKeyList:
-            if key == excludedKey:
-                continue
+            if isinstance(excludedKey, list):
+                if key in excludedKey:
+                    continue
+            else:
+                if key == excludedKey:
+                    continue
+                    
             attributeDict[key][FREQUENCY_COUNTER] -= 1
     
     if RequestedPlaylistSize == 0:
         raise Size0
-    
-    f = open(File)
-    data = json.load(f)
     
     songDict = {}
     artistDict = {}
@@ -99,21 +117,36 @@ def shuffle (songFrequency = 0, artistFrequency = 0, genreFrequency = 0, albumFr
     albumDict = {}
 
     # sorts songs by adding them to dictionaries
+    appendName_index = 0
     for song in data:
-        if song['songLength'] >= minTime and song['songLength'] <= maxTime:
+        if song['songLength'] >= (minTime * 1000) and song['songLength'] <= (maxTime * 1000):
 
-            songDict.setdefault(song['songName'], [0, []])
-            songDict[song['songName']][SONGLIST].append(song['appleSongId'])
+            # Appends an integer to a duplicate song name to make them unique
+            if song['songName'] in songDict:
+                newName = song['songName'] + str(appendName_index)
+                songDict.setdefault(newName, [0, []])
+                songDict[newName][SONGLIST].append(song["appleSongId"])
+                appendName_index += 1
+            else:
+                songDict.setdefault(song['songName'], [0, []])
+                songDict[song['songName']][SONGLIST].append(song["appleSongId"])
 
-            artistDict.setdefault(song['artist'], [0, []])
-            artistDict[song['artist']][SONGLIST].append(song['appleSongId'])
+            for artist in song['artists']:
+                artistDict.setdefault(artist, [0, []])
+                artistDict[artist][SONGLIST].append(song["appleSongId"])
 
-            genreDict.setdefault(song['genre'], [0, []])
-            genreDict[song['genre']][SONGLIST].append(song['appleSongId'])
+            if not song['genres']:
+                genreDict.setdefault("EMPTY", [0, []])
+                genreDict["EMPTY"][SONGLIST].append(song["appleSongId"])
+            else:
+                for genre in song['genres']:
+                    genreDict.setdefault(genre, [0, []])
+                    genreDict[genre][SONGLIST].append(song["appleSongId"])
 
             albumDict.setdefault(song['album'], [0, []])
-            albumDict[song['album']][SONGLIST].append(song['appleSongId'])
+            albumDict[song['album']][SONGLIST].append(song["appleSongId"])
 
+            
     if not bool(songDict):
         raise NoSongs
 
@@ -165,23 +198,30 @@ def shuffle (songFrequency = 0, artistFrequency = 0, genreFrequency = 0, albumFr
             associatedName = songKeyList[index]
             ID = songDict[songKeyList[index]][SONGLIST][0]
 
-            associatedArtist = checkFrequency(artistDict, artistKeyList, ID)
-            associatedGenre = checkFrequency(genreDict, genreKeyList, ID)
-            associatedAlbum = checkFrequency(albumDict, albumKeyList, ID)
+            associatedArtist = checkFrequency(artistDict, artistKeyList, ID, "artist")
+            associatedGenre = checkFrequency(genreDict, genreKeyList, ID, "genre")
+            associatedAlbum = checkFrequency(albumDict, albumKeyList, ID, "album")
             
             if associatedArtist and associatedGenre and associatedAlbum:
 
                 finalPlaylist_array.append(ID)
 
                 reduceFrequencyCounter(songDict, songKeyList, associatedName)
-                reduceFrequencyCounter(artistDict, artistKeyList, associatedArtist)
-                reduceFrequencyCounter(genreDict, genreKeyList, associatedGenre)
-                reduceFrequencyCounter(albumDict, albumKeyList, associatedAlbum)
-
                 songDict[associatedName][FREQUENCY_COUNTER] = songFrequency
-                artistDict[associatedArtist][FREQUENCY_COUNTER] = artistFrequency
-                genreDict[associatedGenre][FREQUENCY_COUNTER] = genreFrequency
+
+                reduceFrequencyCounter(artistDict, artistKeyList, associatedArtist)
+                for artist in associatedArtist:
+                    artistDict[artist][FREQUENCY_COUNTER] = artistFrequency
+
+                reduceFrequencyCounter(albumDict, albumKeyList, associatedAlbum)
                 albumDict[associatedAlbum][FREQUENCY_COUNTER] = albumFrequency
+
+                if not isinstance(associatedGenre, bool):
+                    reduceFrequencyCounter(genreDict, genreKeyList, associatedGenre)
+                    for genre in associatedGenre:
+                        genreDict[genre][FREQUENCY_COUNTER] = genreFrequency
+                else:
+                    reduceFrequencyCounter(genreDict, genreKeyList, "EMPTY")
 
                 Timeout = 0
                 initiateLinearSearch = False
@@ -201,7 +241,7 @@ def shuffle (songFrequency = 0, artistFrequency = 0, genreFrequency = 0, albumFr
 
     finalPlaylist = []
 
-    data_ID_array = [d['appleSongId'] for d in data]
+    data_ID_array = [d["appleSongId"] for d in data]
 
     # creates final JSON to output
     for ID in finalPlaylist_array:
@@ -209,9 +249,7 @@ def shuffle (songFrequency = 0, artistFrequency = 0, genreFrequency = 0, albumFr
             if ID == data_ID_array[i]:
                 finalPlaylist.append(data[i])
 
-    outputFILE = json.dumps(finalPlaylist, indent = 2)
-
-    return outputFILE
+    return finalPlaylist
 
 def getRegistryURL() -> str:
     if re.search("localhost", os.environ.get('REGISTRY_URL')):
@@ -256,10 +294,28 @@ def importPlaylist():
 
 
 @app.route('/shuffle', methods=['POST'])
-def shuffle():
-    # TODO implement shuffle
-    print(flask.request.json)
-    return flask.request.json
+def shuffleEndpoint():
+
+    commonFormat = getCommonFormatSongsFromPlaylists(flask.request.args.get("userToken"),
+                                                     flask.request.json.get("playlistIds"))
+
+    try:
+        commonFormat = shuffle(
+            songFrequency=int(flask.request.json.get('songFreq')),
+            artistFrequency=int(flask.request.json.get('artistFreq')),
+            genreFrequency=int(flask.request.json.get('genreFreq')),
+            albumFrequency=int(flask.request.json.get('albumFreq')),
+            data=commonFormat,
+            RequestedPlaylistSize=int(flask.request.json.get('lengthOfPlaylist')),
+            minTime=int(flask.request.json.get('minSongLength')),
+            maxTime=int(flask.request.json.get('maxSongLength')))
+
+        api.createPlaylistFromCommonFormat(flask.request.args.get("userToken"),
+                                           flask.request.json.get('newPlaylistName'), "", commonFormat)
+    except Exception as e:
+        return str(e)
+
+    return "Success"
 
 
 @app.route('/sort', methods=['POST'])
