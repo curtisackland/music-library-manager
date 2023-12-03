@@ -344,7 +344,7 @@
         const fileText = file.text();
 
         fileText.then(async (result) => {
-          await axios.post(this.getSpotifyProviderURL() + '/import', JSON.parse(result));
+          await axios.post(this.getSpotifyProviderURL() + '/import', {userToken:await this.getUserAccessToken(), playlistTitle:file.name, songList:JSON.parse(result)});
         }).catch((error) => {
           console.error(error);
         });

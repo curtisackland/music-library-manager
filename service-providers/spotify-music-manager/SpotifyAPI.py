@@ -116,5 +116,43 @@ class SpotifyAPI:
         response = requests.get(f"https://api.spotify.com/v1/playlists/{playlistId}/tracks", headers=createAuth(userToken))
         return response.json()
     
+    def searchSong(self, userToken:str, songInfo:dict):
+        attributes = {"songName":"track"}
+        listAttributes = {"artists":"artist"}
+        songQuery = ""
+        for attr in attributes:
+            if attr in songInfo:
+                songQuery += requests.utils.quote(attributes[attr]) + ":" + requests.utils.quote(songInfo[attr] + " ")
+
+        for attr in listAttributes:
+            if attr in songInfo and len(songInfo[attr]) > 0:
+                songQuery += requests.utils.quote(listAttributes[attr]) + ":" + requests.utils.quote(songInfo[attr][0] + " ")
+
+        searchParams = {"type":"track","limit":1,"q":requests.utils.quote(songQuery)}
+        res = requests.get("https://api.spotify.com/v1/search", searchParams, headers=createAuth(userToken))
+        if res.ok:
+            resJson = res.json()
+            if "tracks" in resJson:
+                if "items" in resJson["tracks"]:
+                    if len(resJson["tracks"]["items"]) != 0:
+                        return resJson["tracks"]["items"][0]["uri"]
+        return None
+
     def getClientID(self):
         return self._apiConfig["app"]["client_id"]
+    
+    def createPlaylistFromCommonFormat(self, bearer, title, description, public, commonFormat):
+
+        if len(commonFormat) > 0:
+            if "spotifySongId" in commonFormat[0]:
+                self.createPlaylist(bearer, title, description, public, ["spotify:track:" + song["spotifySongId"] for song in commonFormat])
+            else:
+                songIds = []
+                for song in commonFormat:
+                    songId = self.searchSong(bearer, song)
+                    if songId != None:
+                        songIds.append(songId)
+                    else:
+                        print("Search could not find song: " + str(song), flush=True)
+
+                self.createPlaylist(bearer, title, description, True, songIds)
