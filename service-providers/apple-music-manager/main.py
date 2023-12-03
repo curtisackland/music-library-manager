@@ -404,11 +404,16 @@ def sort():
         return squashedList
 
 
-    songsList = getCommonFormatSongsFromPlaylists(flask.request.args.get("userToken"), flask.request.json.get("playlistIds"))
+    songsList = getCommonFormatSongsFromPlaylists(flask.request.args.get("userToken"),
+                                                  flask.request.json.get("playlistIds"))
+    
     playlist = sorting(songsList, flask.request.json.get("sortPriority"))
-    api.createPlaylistFromCommonFormat(flask.request.args.get("userToken"), flask.request.json.get("newPlaylistName"), "", playlist)
 
-    print(json.dumps(playlist, indent=2))
+    api.createPlaylistFromCommonFormat(flask.request.args.get("userToken"),
+                                       flask.request.json.get("newPlaylistName"),
+                                       "",
+                                       playlist)
+
 
     return "Success"
 
