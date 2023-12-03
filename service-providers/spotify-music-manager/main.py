@@ -260,7 +260,7 @@ def exportPlaylist():
 def importPlaylist():
     rJson = flask.request.json
 
-    api.createPlaylistFromCommonFormat(rJson["userToken"], rJson["playlistTitle"], "", True, rJson["songList"])
+    api.createPlaylistFromCommonFormat(rJson["userToken"], ".".join(rJson["playlistTitle"].split(".")[:-1]), "", True, rJson["songList"])
     return "Success"
 
 
@@ -289,7 +289,6 @@ def getUserToken():
     if response.ok:
         return response.json()
     else:
-        print("ERROR", file=sys.stdout, flush=True)
         return flask.Response(response.json(), status=response.status_code, mimetype="application/json")
 
 
