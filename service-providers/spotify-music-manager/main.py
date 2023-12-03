@@ -257,9 +257,7 @@ def shuffle (songFrequency = 0, artistFrequency = 0, genreFrequency = 0, albumFr
             if ID == data_ID_array[i]:
                 finalPlaylist.append(data[i])
 
-    outputFILE = json.dumps(finalPlaylist, indent = 2)
-
-    return outputFILE
+    return finalPlaylist
 
 def getRegistryURL() -> str:
     if re.search("localhost", os.environ.get('REGISTRY_URL')):
@@ -306,10 +304,26 @@ def importPlaylist():
 
 
 @app.route('/shuffle', methods=['POST'])
-def shuffle():
-    # TODO implement shuffle
-    print(flask.request.json)
-    return flask.request.json
+def shuffleExport():
+
+    commonFormat = getCommonFormatSongsFromPlaylists(flask.request.args.get("userToken"), flask.request.json.get("playlistIds"))
+
+    try:
+        commonFormat = shuffle(
+            songFrequency = int(flask.request.json.get('songFreq')),
+            artistFrequency = int(flask.request.json.get('artistFreq')),
+            genreFrequency = int(flask.request.json.get('genreFreq')),
+            albumFrequency = int(flask.request.json.get('albumFreq')),
+            data=commonFormat,
+            RequestedPlaylistSize = int(flask.request.json.get('lengthOfPlaylist')),
+            minTime = int(flask.request.json.get('minSongLength')),
+            maxTime = int(flask.request.json.get('maxSongLength')))
+
+        api.createPlaylistFromCommonFormat(flask.request.args.get("userToken"), flask.request.json.get('newPlaylistName'), "", True, commonFormat)
+    except Exception as e:
+        return str(e)
+
+    return "Success"
 
 
 @app.route('/sort', methods=['POST'])
