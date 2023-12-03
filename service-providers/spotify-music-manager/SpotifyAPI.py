@@ -14,9 +14,8 @@ def getAPIConfig(keyfile):
     if os.environ.get("SPOTIFY_CLIENT_ID") != None and os.environ.get("SPOTIFY_CLIENT_SECRET") != None:
         return {"app":{"client_id":os.environ.get("SPOTIFY_CLIENT_ID"), "client_secret":os.environ.get("SPOTIFY_CLIENT_SECRET")}}
     else:
-        print("Could not find spotify credentials in environment. Looking for file...")
-        with open(keyfile, "r") as keyfileptr:
-            return json.load(keyfileptr)
+        raise Exception("Could not find spotify credentials in environment.")
+
 
 def getNewBearerTokenObject(clientID, clientSecret):
     header = {"Content-Type":"application/x-www-form-urlencoded"}
