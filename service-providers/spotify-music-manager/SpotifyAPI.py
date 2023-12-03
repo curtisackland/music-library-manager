@@ -117,21 +117,26 @@ class SpotifyAPI:
         return response.json()
     
     def searchSong(self, userToken:str, songInfo:dict):
-        attributes = {"songName":"track","album":"album"}
-        listAttributes = {"genres":"genre", "artists":"artist"}
+        #attributes = {"songName":"track","album":"album"}
+        attributes = {"songName":"track"}
+        #listAttributes = {"genres":"genre", "artists":"artist"}
+        listAttributes = {"artists":"artist"}
         songQuery = ""
         for attr in attributes:
             if attr in songInfo:
                 songQuery += requests.utils.quote(attributes[attr]) + ":" + requests.utils.quote(songInfo[attr] + " ")
 
         for attr in listAttributes:
-            if attr in songInfo:
-                songQuery += requests.utils.quote(attributes[attr]) + ":" + requests.utils.quote(songInfo[attr][0] + " ")
-
-
-        res = requests.get("https://api.spotify.com/v1/search", {"type":"track","limit":1,"q":songQuery}, headers=createAuth(userToken))
+            if attr in songInfo and len(songInfo[attr]) > 0:
+                songQuery += requests.utils.quote(listAttributes[attr]) + ":" + requests.utils.quote(songInfo[attr][0] + " ")
+        print(userToken, flush=True)
+        print(f"Song query: {songQuery}", flush=True)
+        searchParams = {"type":"track","limit":1,"q":requests.utils.quote(songQuery)}
+        print(f"searchParams: {searchParams}", flush=True)
+        res = requests.get("https://api.spotify.com/v1/search", searchParams, headers=createAuth(userToken))
         if res.ok:
             resJson = res.json()
+            print(f"resJson: {resJson}", flush=True)
             if "tracks" in resJson:
                 if "items" in resJson["tracks"]:
                     if len(resJson["tracks"]["items"]) != 0:
@@ -140,3 +145,23 @@ class SpotifyAPI:
 
     def getClientID(self):
         return self._apiConfig["app"]["client_id"]
+    
+    def createPlaylistFromCommonFormat(self, bearer, title, description, public, commonFormat):
+
+        if len(commonFormat) > 0:
+            print(commonFormat[0], flush=True)
+            print("spotifySongId" in commonFormat[0], flush=True)
+            if "spotifySongId" in commonFormat[0]:
+                print("Using ids", flush=True)
+
+                self.createPlaylist(bearer, title, description, public, ["spotify:track:" + song["spotifySongId"] for song in commonFormat])
+            else:
+                songIds = []
+                for song in commonFormat:
+                    songId = self.searchSong(bearer, song)
+                    if songId != None:
+                        songIds.append(songId)
+                    else:
+                        print("Search could not find song: " + str(song), flush=True) # For debugging
+
+                self.createPlaylist(bearer, title, description, True, songIds)
