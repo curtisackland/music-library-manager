@@ -116,5 +116,27 @@ class SpotifyAPI:
         response = requests.get(f"https://api.spotify.com/v1/playlists/{playlistId}/tracks", headers=createAuth(userToken))
         return response.json()
     
+    def searchSong(self, userToken:str, songInfo:dict):
+        attributes = {"songName":"track","album":"album"}
+        listAttributes = {"genres":"genre", "artists":"artist"}
+        songQuery = ""
+        for attr in attributes:
+            if attr in songInfo:
+                songQuery += requests.utils.quote(attributes[attr]) + ":" + requests.utils.quote(songInfo[attr] + " ")
+
+        for attr in listAttributes:
+            if attr in songInfo:
+                songQuery += requests.utils.quote(attributes[attr]) + ":" + requests.utils.quote(songInfo[attr][0] + " ")
+
+
+        res = requests.get("https://api.spotify.com/v1/search", {"type":"track","limit":1,"q":songQuery}, headers=createAuth(userToken))
+        if res.ok:
+            resJson = res.json()
+            if "tracks" in resJson:
+                if "items" in resJson["tracks"]:
+                    if len(resJson["tracks"]["items"]) != 0:
+                        return resJson["tracks"]["items"][0]["uri"]
+        return None
+
     def getClientID(self):
         return self._apiConfig["app"]["client_id"]

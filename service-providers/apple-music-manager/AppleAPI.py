@@ -22,6 +22,36 @@ class AppleAPI:
     def __init__(self):
         self._devBearer = getBearerToken()
 
+    def searchSong(self, mutToken, songInfo):
+        res = requests.get("https://api.music.apple.com/v1/catalog/CA/search", {"types":",".join(["songs"]), "term": songInfo["songName"]}, headers=createMutAuth(self._devBearer, mutToken))
+        if res.ok:
+            with open("tmp.json", "w") as f:
+                json.dump(res.json(), f, indent=2)
+            resJson = res.json()
+            if "results" in resJson:
+                if "songs" in resJson['results']:
+                    if "data" in resJson['results']['songs']:
+                        if len(resJson) != 0:
+                            if "id" in resJson['results']['songs']['data'][0]:
+                                return resJson['results']['songs']['data'][0]['id']
+        return None
+
+    def createPlaylist(self, mutToken, title, descr, songIds):
+        songIdsFormatted = [{"id":id, "type":"songs"} for id in songIds]
+        playlistJson = {
+            "attributes":{
+                "name":title,
+                "description":descr
+            },
+            "relationships": {
+                "tracks":{
+                    "data": songIdsFormatted
+                }
+            }
+        }
+
+        res = requests.post("https://api.music.apple.com/v1/me/library/playlists", json=playlistJson, headers=createMutAuth(self._devBearer, mutToken))
+
     def getPlaylists(self, mutToken):
         result = requests.get("https://api.music.apple.com/v1/me/library/playlists", headers=createMutAuth(self._devBearer, mutToken))
         print(result.text, flush=True)

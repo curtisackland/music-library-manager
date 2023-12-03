@@ -258,7 +258,18 @@ def exportPlaylist():
 
 @app.route('/import', methods=['POST'])
 def importPlaylist():
-    # TODO import common format and create a new playlist based of it
+    rJson = flask.request.json
+    songIds = []
+    for song in rJson["songList"]:
+        songId = api.searchSong(rJson["userToken"], song)
+        if songId != None:
+            songIds.append(songId)
+        else:
+            print("Search could not find song: " + str(song), flush=True) # For debugging
+
+
+    api.createPlaylist(rJson["userToken"],rJson["playlistTitle"],"",True,songIds)
+
     return "Spotify import endpoint"
 
 
