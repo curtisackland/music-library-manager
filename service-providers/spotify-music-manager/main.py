@@ -328,9 +328,95 @@ def shuffleExport():
 
 @app.route('/sort', methods=['POST'])
 def sort():
-    # TODO implement sort
-    print(flask.request.json)
-    return flask.request.json
+    attributeDictionary = {
+        "Song Name": ["songName", flask.request.args.get("songNameOrder")],
+        "Album Name": ["album", flask.request.args.get("albumNameOrder")],
+        "Genre Name": ["genre", flask.request.args.get("genreNameOrder")],
+        "Artist Name": ["artist", flask.request.args.get("artistNameOrder")],
+        "Song Length": ["songLength", flask.request.args.get("songLengthOrder")],
+        "Song Release Date": ["releaseDate", flask.request.args.get("songReleaseDateOrder")]
+    }
+
+
+    def sorting(songs, sortPriority):
+        target = attributeDictionary[sortPriority[0]][0]
+        order = attributeDictionary[sortPriority[0]][1]
+        sortPriority.removeAt(0)
+        playlist = []
+        
+        for song in songs:
+            found = False
+            i = 0
+
+            while i < len(playlist) and not found:
+                res = compare(song[target], playlist[i][0], target, order)
+
+                # The position after is found at i.
+                if res == 0:
+                    found = True
+                    playlist.insert(i, [song])
+                # The position at i is equivalent.
+                elif res == 1:
+                    found = True
+                    playlist[i].append(song)
+
+                i += 1
+
+            # The end of the playlist so appends to end.
+            if not found:
+                playlist.append([song])
+
+        # Sorts the songs with equivalent values with the next sort priority.
+        for i in range(0, len(playlist)):
+            if len(playlist[i]) > 1:
+                playlist[i] = sorting(playlist[i], sortPriority)
+
+        return squash(playlist)
+
+
+    def compare(one, two, attribute, order):
+        # Appends the attributes that come as a list to make a string.
+        if attribute == "artist" or attribute == "genre":
+            tmp = ""
+            for item in one:
+                tmp += item
+            one = tmp
+
+            tmp = ""
+            for item in two:
+                tmp += item
+            two = tmp
+
+        # Compare.
+        if order == "DESC" and one > two:
+            return 0
+        elif order == "ASC" and one < two:
+            return 0
+        elif one == two:
+            return 1
+        
+        return -1
+
+
+    def squash(songs):
+        squashedList = []
+
+        for subList in songs:
+            for song in subList:
+                squashedList.append(song)
+
+        return squashedList
+
+
+    songsList = getCommonFormatSongsFromPlaylists(flask.request.args.get("userToken"), [flask.request.args.get("playlistId")])
+    
+    playlist = sorting(songsList, flask.request.args.get("sortPriority"))
+    print(playlist)
+
+    # TODO Make new playlist
+    # flask.request.args.get("newPlaylistName")
+
+    return flask.request.json 
 
 
 @app.route('/clientId')
