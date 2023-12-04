@@ -256,6 +256,7 @@ def shuffle (songFrequency = 0, artistFrequency = 0, genreFrequency = 0, albumFr
         for i in range(0, len(data_ID_array)):
             if ID == data_ID_array[i]:
                 finalPlaylist.append(data[i])
+                break
 
     return finalPlaylist
 
