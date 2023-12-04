@@ -4,7 +4,7 @@ import threading
 import requests
 import time
 import flask
-import json
+import signal
 import random
 from flask_cors import CORS
 from typing import List
@@ -428,7 +428,12 @@ def getDeveloperToken():
     return AppleAPI.getBearerToken()
 
 
+def raiseSIGINT(a, b):
+    print("Terminating", flush=True)
+    raise KeyboardInterrupt # stop flask
+
 if __name__ == '__main__':
+    signal.signal(signal.SIGTERM, raiseSIGINT)
     t1 = threading.Thread(target=sendHeartbeat)
     t1.start()
     app.run(host='0.0.0.0', port=3002)
@@ -440,5 +445,7 @@ if __name__ == '__main__':
         "type": "unregister",
         "name": "Apple Library Manager"
     }
+    print("unregistering", flush=True)
     requests.post(getRegistryURL() + "/heartbeat", json=endRequest)
+    print("Joining heartbeat thread", flush=True)
     t1.join()

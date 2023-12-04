@@ -5,7 +5,8 @@ import requests
 import time
 import flask
 import re
-import json
+import signal
+
 import random
 from flask_cors import CORS
 import SpotifyAPI
@@ -456,8 +457,12 @@ def createPlaylist():
                        p["tracks"])
     return flask.Response(status=200)
 
+def raiseSIGINT(a, b):
+    print("Terminating", flush=True)
+    raise KeyboardInterrupt # stop flask
 
 if __name__ == '__main__':
+    signal.signal(signal.SIGTERM, raiseSIGINT)
     t1 = threading.Thread(target=sendHeartbeat)
     t1.start()
     app.run(host='0.0.0.0', port=3001)
@@ -469,5 +474,7 @@ if __name__ == '__main__':
         "type": "unregister",
         "name": "Spotify Library Manager"
     }
+    print("unregistering", flush=True)
     requests.post(getRegistryURL() + "/heartbeat", json=endRequest)
+    print("joining heartbeat thread")
     t1.join()

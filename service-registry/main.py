@@ -2,6 +2,7 @@ import copy
 from datetime import datetime
 import re
 import json
+import signal
 import flask
 from flask_cors import CORS
 
@@ -68,6 +69,10 @@ def location():
 
     return json.dumps({"location": PROVIDERS[flask.request.args.get("name")]})
 
+def raiseSIGINT(a, b):
+    print("Terminating", flush=True)
+    raise KeyboardInterrupt # stop flask
 
 if __name__ == '__main__':
+    signal.signal(signal.SIGTERM, raiseSIGINT)
     app.run(host='0.0.0.0', port=3000)
