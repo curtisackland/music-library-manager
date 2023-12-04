@@ -341,9 +341,13 @@ def sort():
     def sorting(songs, sortPriority):
         target = attributeDictionary[sortPriority[0]][0]
         order = attributeDictionary[sortPriority[0]][1]
-        sortPriority.pop(0)
         playlist = []
         
+        if order == "None":
+            if len(sortPriority) == 0:
+                return songs
+            return sorting(songs, sortPriority[1:])
+    
         for song in songs:
             found = False
             i = 0
@@ -367,13 +371,13 @@ def sort():
                 playlist.append([song])
 
         # Nothing left to sort by.
-        if len(sortPriority) > 0:
+        if len(sortPriority) == 0:
             return squash(playlist)
 
         # Sorts the songs with equivalent values with the next sort priority.
         for i in range(0, len(playlist)):
             if len(playlist[i]) > 1:
-                playlist[i] = sorting(playlist[i], sortPriority)
+                playlist[i] = sorting(playlist[i], sortPriority[1:])
 
         return squash(playlist)
 
@@ -415,13 +419,13 @@ def sort():
     songsList = getCommonFormatSongsFromPlaylists(flask.request.args.get("userToken"),
                                                   flask.request.json.get("playlistIds"))
     
-    playlist = sorting(songsList, flask.request.json.get("sortPriority"))
+    commonFormat = sorting(songsList, flask.request.json.get("sortPriority"))
 
     api.createPlaylistFromCommonFormat(flask.request.args.get("userToken"),
                                        flask.request.json.get("newPlaylistName"),
                                        "",
                                        False,
-                                       playlist)
+                                       commonFormat)
 
     return "Success"
 
