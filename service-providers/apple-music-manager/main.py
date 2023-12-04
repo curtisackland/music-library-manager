@@ -336,7 +336,7 @@ def sort():
         playlist = []
         
         if order == "None":
-            if len(sortPriority) == 0:
+            if len(sortPriority) == 1:
                 return songs
             return sorting(songs, sortPriority[1:])
     
@@ -363,7 +363,7 @@ def sort():
                 playlist.append([song])
 
         # Nothing left to sort by.
-        if len(sortPriority) == 0:
+        if len(sortPriority) == 1:
             return squash(playlist)
 
         # Sorts the songs with equivalent values with the next sort priority.
