@@ -289,7 +289,7 @@ def exportPlaylist():
 @app.route('/import', methods=['POST'])
 def importPlaylist():
     rJson = flask.request.json
-    api.createPlaylistFromCommonFormat(rJson["userToken"], rJson["playlistTitle"], "", rJson["songList"])
+    api.createPlaylistFromCommonFormat(rJson["userToken"], ".".join(rJson["playlistTitle"].split(".")[:-1]), "", rJson["songList"])
     return "Success"
 
 

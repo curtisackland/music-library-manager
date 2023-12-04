@@ -3,6 +3,7 @@ import requests
 import os
 import datetime
 import base64
+import math
 
 SECRETS_FILE = "secrets/keys.json"
 BEARER_CACHE_FILE = "secrets/bearer.json"
@@ -87,12 +88,21 @@ class SpotifyAPI:
 
         newPlaylist = requests.post(f"https://api.spotify.com/v1/users/{requests.utils.quote(self.getUserName(userToken))}/playlists", json=newPlaylistBody, headers=createAuth(userToken))
 
-        addTracksBody = {
-          "uris":tracks,
-          "position":0
-        }
-        newPlaylistId = newPlaylist.json()["id"]
-        requests.post(f"https://api.spotify.com/v1/playlists/{requests.utils.quote(newPlaylistId)}/tracks", json=addTracksBody, headers=createAuth(userToken))
+        trackGroups = []
+
+        for groupNum in range(math.ceil(len(tracks)/100)):
+            group = []
+            offset = groupNum * 100
+            for songNum in range(min(len(tracks[offset:]), 100)):
+                group.append(tracks[songNum + offset])
+            trackGroups.append(group)
+
+        for trackGroupNumber in range(len(trackGroups)):
+            addTracksBody = {
+                "uris":trackGroups[trackGroupNumber]
+            }
+            newPlaylistId = newPlaylist.json()["id"]
+            requests.post(f"https://api.spotify.com/v1/playlists/{requests.utils.quote(newPlaylistId)}/tracks", json=addTracksBody, headers=createAuth(userToken))
 
     def getUserAuthenticationToken(self, code:str, redirect_uri:str) -> requests.Response:
 
@@ -114,8 +124,13 @@ class SpotifyAPI:
 
     def getPlaylist(self, userToken:str, playlistId:str):
         response = requests.get(f"https://api.spotify.com/v1/playlists/{playlistId}/tracks", headers=createAuth(userToken))
-        return response.json()
-    
+        extendedPlaylistItems = response.json()
+        while "next" in response.json() and response.json()["next"] != None:
+            response = requests.get(response.json()["next"], headers=createAuth(userToken))
+            extendedPlaylistItems["items"].extend(response.json()["items"])
+        
+        return extendedPlaylistItems
+
     def searchSong(self, userToken:str, songInfo:dict):
         attributes = {"songName":"track"}
         listAttributes = {"artists":"artist"}

@@ -74,5 +74,8 @@ class AppleAPI:
     
     def getPlaylistTracks(self, mutToken, playlistID):
         result = requests.get(f"https://api.music.apple.com/v1/me/library/playlists/{playlistID}/tracks", headers=createMutAuth(self._devBearer, mutToken))
-        data = result.json()
-        return data
+        extendedResult = result.json()
+        while "next" in result.json():
+            result = requests.get(f"https://api.music.apple.com" + result.json()["next"], headers=createMutAuth(self._devBearer, mutToken))
+            extendedResult["data"].extend(result.json()["data"])
+        return extendedResult
