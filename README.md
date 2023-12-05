@@ -3,7 +3,7 @@ Playlist/queue manager for Spotify and Apple Music
 
 
 # Running the application
-We reccomend running the applicaiton within docker containers. 
+We recommend running the application within docker containers. 
 The docker-compose.yml file in the root of the project directory contains most of the configuration needed to get the containers working.
 
 ## Service Consumer Configuration
@@ -65,7 +65,7 @@ cd service-consumer
 cp .env.example .env
 ~~~
 
-Then to run vite use
+Then to run Vite use
 ~~~bash
 cd service-consumer
 npm run dev
