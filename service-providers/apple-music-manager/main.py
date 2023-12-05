@@ -24,18 +24,19 @@ def getCommonFormatSongsFromPlaylists(userToken: str, playlistIDs: List[str]):
     songs = []
     for playlistID in playlistIDs:
         playlist = api.getPlaylistTracks(userToken, playlistID)
-        for track in playlist["data"]:
-            newSong = {}
+        if 'data' in playlist:
+            for track in playlist["data"]:
+                newSong = {}
 
-            newSong["songName"] = track["attributes"]["name"]
-            newSong["artists"] = [track["attributes"]["artistName"]]
-            newSong["genres"] = track["attributes"]["genreNames"]
-            newSong["album"] = track["attributes"]["albumName"]
-            newSong["songLength"] = track["attributes"]["durationInMillis"]
-            newSong["releaseDate"] = track["attributes"]["releaseDate"]
-            newSong["appleSongId"] = track["id"]
+                newSong["songName"] = track["attributes"]["name"]
+                newSong["artists"] = [track["attributes"]["artistName"]]
+                newSong["genres"] = track["attributes"]["genreNames"]
+                newSong["album"] = track["attributes"]["albumName"]
+                newSong["songLength"] = track["attributes"]["durationInMillis"]
+                newSong["releaseDate"] = track["attributes"]["releaseDate"]
+                newSong["appleSongId"] = track["id"]
 
-            songs.append(newSong)
+                songs.append(newSong)
 
     return songs
 
